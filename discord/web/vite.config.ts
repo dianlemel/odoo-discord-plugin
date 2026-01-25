@@ -9,7 +9,7 @@ export default defineConfig({
         react(),
         tailwindcss(),
     ],
-    base: '/discord/', // 設置基礎路徑
+    base: '/discord/web', // 設置基礎路徑
     resolve: {
         alias: {
             '@': path.resolve(__dirname, './src'),

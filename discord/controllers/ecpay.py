@@ -6,8 +6,14 @@ from odoo.http import request
 
 class ECPayController(http.Controller):
 
-    @http.route(['/ecpay/generate/'], type='http', auth="public", csrf=False, methods=['GET'])
-    def ecpay_generate(self):
+    @http.route(
+        ['/discord/ecpay/generate'],
+        type='http',
+        auth="public",
+        csrf=False,
+        methods=['GET']
+    )
+    def generate(self):
         context = {
             'action_url': 'https://www.google.com'
         }

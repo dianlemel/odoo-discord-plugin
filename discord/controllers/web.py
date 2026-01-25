@@ -6,11 +6,16 @@ import os
 
 class Web(http.Controller):
 
-    @http.route([
-        '/discord',
-        '/discord/',
-        '/discord/<path:path>',
-    ], auth='public', type='http', csrf=False)
+    @http.route(
+        [
+            '/discord/web',
+            '/discord/web/',
+            '/discord/web/<path:path>',
+        ],
+        auth='public',
+        type='http',
+        csrf=False
+    )
     def discord_web(self, path=None):
         # 處理靜態資源請求 (JS, CSS, 圖片等)
         if path and ('.' in path or path.startswith('assets/')):
