@@ -1,0 +1,33 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="res_config_settings_view_form" model="ir.ui.view">
+            <field name="name">res.config.settings.view.form.inherit.project_tracker</field>
+            <field name="model">res.config.settings</field>
+            <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+            <field name="priority" eval="41"/>
+            <field name="arch" type="xml">
+                <xpath expr="//form" position="inside">
+                    <app data-string="Discord" string="Discord" name="discord">
+                        <block title="綠界科技" name="ecpay_block">
+                            <setting string="測試模式">
+                                <field name="ecpay_is_debug"/>
+                            </setting>
+                            <setting string="商店代號">
+                                <field password="True" name="ecpay_merchant_id"/>
+                            </setting>
+                            <setting string="HashKey">
+                                <field password="True" name="ecpay_hash_key"/>
+                            </setting>
+                            <setting string="HashIV">
+                                <field password="True" name="ecpay_hash_iv"/>
+                            </setting>
+                        </block>
+                        <block title="歐富寶" name="opay_block">
+                        </block>
+                    </app>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

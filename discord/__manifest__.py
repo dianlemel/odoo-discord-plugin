@@ -8,6 +8,7 @@
     'data': [
         'security/ir.model.access.csv',
         'views/ecpay_templates.xml',
+        'views/res_config.xml',
     ],
     "external_dependencies": {
         "python": [],
