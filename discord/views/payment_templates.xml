@@ -1,0 +1,260 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- 付款頁面 -->
+        <template id="payment_page" name="Discord 點數付款">
+            <t t-call="web.layout">
+                <t t-set="head">
+                    <style>
+                        .payment-container {
+                            max-width: 500px;
+                            margin: 50px auto;
+                            padding: 30px;
+                            background: #fff;
+                            border-radius: 10px;
+                            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+                        }
+                        .payment-header {
+                            text-align: center;
+                            margin-bottom: 30px;
+                        }
+                        .payment-header h1 {
+                            color: #5865F2;
+                            margin-bottom: 10px;
+                        }
+                        .payment-info {
+                            background: #f8f9fa;
+                            padding: 20px;
+                            border-radius: 8px;
+                            margin-bottom: 30px;
+                        }
+                        .payment-info-row {
+                            display: flex;
+                            justify-content: space-between;
+                            padding: 10px 0;
+                            border-bottom: 1px solid #eee;
+                        }
+                        .payment-info-row:last-child {
+                            border-bottom: none;
+                            font-weight: bold;
+                            font-size: 1.2em;
+                        }
+                        .payment-methods {
+                            display: flex;
+                            flex-direction: column;
+                            gap: 15px;
+                        }
+                        .payment-btn {
+                            display: block;
+                            padding: 15px 30px;
+                            text-align: center;
+                            border-radius: 8px;
+                            text-decoration: none;
+                            font-size: 1.1em;
+                            font-weight: bold;
+                            transition: transform 0.2s;
+                        }
+                        .payment-btn:hover {
+                            transform: scale(1.02);
+                            text-decoration: none;
+                        }
+                        .btn-ecpay {
+                            background: #00a651;
+                            color: #fff;
+                        }
+                        .btn-ecpay:hover {
+                            color: #fff;
+                            background: #008c44;
+                        }
+                        .btn-opay {
+                            background: #ff6600;
+                            color: #fff;
+                        }
+                        .btn-opay:hover {
+                            color: #fff;
+                            background: #e55c00;
+                        }
+                    </style>
+                </t>
+                <div class="payment-container">
+                    <div class="payment-header">
+                        <h1>購買點數</h1>
+                        <p>歡迎, <t t-esc="partner.name"/></p>
+                    </div>
+
+                    <div class="payment-info">
+                        <div class="payment-info-row">
+                            <span>購買點數</span>
+                            <span><t t-esc="points"/> 點</span>
+                        </div>
+                        <div class="payment-info-row">
+                            <span>單價</span>
+                            <span>NT$ <t t-esc="price_per_point"/> / 點</span>
+                        </div>
+                        <div class="payment-info-row">
+                            <span>總金額</span>
+                            <span>NT$ <t t-esc="total_amount"/></span>
+                        </div>
+                    </div>
+
+                    <div class="payment-methods">
+                        <a t-attf-href="/discord/pay/ecpay?discord_id=#{discord_id}&amp;points=#{points}" class="payment-btn btn-ecpay">
+                            綠界支付
+                        </a>
+                        <a t-attf-href="/discord/pay/opay?discord_id=#{discord_id}&amp;points=#{points}" class="payment-btn btn-opay">
+                            歐富寶支付
+                        </a>
+                    </div>
+                </div>
+            </t>
+        </template>
+
+        <!-- 綠界付款表單 (自動提交) -->
+        <template id="ecpay_form" name="綠界付款表單">
+            <t t-call="web.layout">
+                <t t-set="head">
+                    <style>
+                        .loading-container {
+                            max-width: 500px;
+                            margin: 100px auto;
+                            text-align: center;
+                        }
+                        .loading-spinner {
+                            font-size: 3em;
+                            animation: spin 1s linear infinite;
+                        }
+                        @keyframes spin {
+                            from { transform: rotate(0deg); }
+                            to { transform: rotate(360deg); }
+                        }
+                    </style>
+                </t>
+                <div class="loading-container">
+                    <div class="loading-spinner">⏳</div>
+                    <p>正在跳轉至綠界付款頁面...</p>
+                </div>
+                <form id="ecpay-form" method="POST" t-att-action="action_url">
+                    <t t-foreach="params.items()" t-as="param">
+                        <input type="hidden" t-att-name="param[0]" t-att-value="param[1]"/>
+                    </t>
+                </form>
+                <script>
+                    document.getElementById('ecpay-form').submit();
+                </script>
+            </t>
+        </template>
+
+        <!-- 付款結果頁面 -->
+        <template id="payment_result" name="付款結果">
+            <t t-call="web.layout">
+                <t t-set="head">
+                    <style>
+                        .result-container {
+                            max-width: 500px;
+                            margin: 50px auto;
+                            padding: 30px;
+                            background: #fff;
+                            border-radius: 10px;
+                            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+                            text-align: center;
+                        }
+                        .result-icon {
+                            font-size: 4em;
+                            margin-bottom: 20px;
+                        }
+                        .result-icon.success { color: #28a745; }
+                        .result-icon.pending { color: #ffc107; }
+                        .result-icon.failed { color: #dc3545; }
+                        .result-info {
+                            background: #f8f9fa;
+                            padding: 20px;
+                            border-radius: 8px;
+                            margin-top: 20px;
+                            text-align: left;
+                        }
+                        .result-info-row {
+                            display: flex;
+                            justify-content: space-between;
+                            padding: 8px 0;
+                            border-bottom: 1px solid #eee;
+                        }
+                        .result-info-row:last-child {
+                            border-bottom: none;
+                        }
+                    </style>
+                </t>
+                <div class="result-container">
+                    <t t-if="order.state == 'paid'">
+                        <div class="result-icon success">✓</div>
+                        <h2>付款成功</h2>
+                        <p>點數已加入您的帳戶</p>
+                    </t>
+                    <t t-elif="order.state == 'pending'">
+                        <meta http-equiv="refresh" content="60"/>
+                        <div class="result-icon pending">⏳</div>
+                        <h2>等待付款確認</h2>
+                        <p>請稍候，系統正在處理您的付款</p>
+                    </t>
+                    <t t-else="">
+                        <div class="result-icon failed">✗</div>
+                        <h2>付款失敗</h2>
+                        <p>請重新嘗試或聯繫客服</p>
+                    </t>
+
+                    <div class="result-info">
+                        <div class="result-info-row">
+                            <span>訂單編號</span>
+                            <span><t t-esc="order.name"/></span>
+                        </div>
+                        <div class="result-info-row">
+                            <span>購買點數</span>
+                            <span><t t-esc="order.points"/> 點</span>
+                        </div>
+                        <div class="result-info-row">
+                            <span>金額</span>
+                            <span>NT$ <t t-esc="order.amount"/></span>
+                        </div>
+                        <div class="result-info-row">
+                            <span>狀態</span>
+                            <span>
+                                <t t-if="order.state == 'paid'">已付款</t>
+                                <t t-elif="order.state == 'pending'">待付款</t>
+                                <t t-elif="order.state == 'failed'">付款失敗</t>
+                                <t t-else="">已取消</t>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </t>
+        </template>
+
+        <!-- 錯誤頁面 -->
+        <template id="payment_error" name="付款錯誤">
+            <t t-call="web.layout">
+                <t t-set="head">
+                    <style>
+                        .error-container {
+                            max-width: 500px;
+                            margin: 100px auto;
+                            padding: 30px;
+                            text-align: center;
+                        }
+                        .error-icon {
+                            font-size: 4em;
+                            color: #dc3545;
+                            margin-bottom: 20px;
+                        }
+                        .error-message {
+                            color: #333;
+                            font-size: 1.2em;
+                        }
+                    </style>
+                </t>
+                <div class="error-container">
+                    <div class="error-icon">⚠️</div>
+                    <p class="error-message"><t t-esc="error_message"/></p>
+                </div>
+            </t>
+        </template>
+    </data>
+</odoo>

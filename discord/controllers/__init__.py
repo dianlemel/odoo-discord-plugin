@@ -1,4 +1,4 @@
 from . import web
-from . import ecpay
-from . import discord
-from . import opay
+from . import base
+from . import error_codes
+from . import payment

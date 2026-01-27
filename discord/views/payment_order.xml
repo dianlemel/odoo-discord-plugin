@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- List View -->
+        <record id="discord_payment_order_view_list" model="ir.ui.view">
+            <field name="name">discord.payment.order.list</field>
+            <field name="model">discord.payment.order</field>
+            <field name="arch" type="xml">
+                <list create="false" delete="false">
+                    <field name="name"/>
+                    <field name="partner_id"/>
+                    <field name="discord_id"/>
+                    <field name="points"/>
+                    <field name="amount"/>
+                    <field name="payment_method"/>
+                    <field name="state" widget="badge" decoration-success="state == 'paid'" decoration-warning="state == 'pending'" decoration-danger="state == 'failed'"/>
+                    <field name="create_date"/>
+                </list>
+            </field>
+        </record>
+
+        <!-- Form View -->
+        <record id="discord_payment_order_view_form" model="ir.ui.view">
+            <field name="name">discord.payment.order.form</field>
+            <field name="model">discord.payment.order</field>
+            <field name="arch" type="xml">
+                <form create="false" delete="false">
+                    <header>
+                        <field name="state" widget="statusbar" statusbar_visible="pending,paid"/>
+                    </header>
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="name"/>
+                                <field name="partner_id"/>
+                                <field name="discord_id"/>
+                            </group>
+                            <group>
+                                <field name="points"/>
+                                <field name="amount"/>
+                                <field name="payment_method"/>
+                            </group>
+                        </group>
+                        <group>
+                            <group>
+                                <field name="trade_no"/>
+                                <field name="payment_date"/>
+                            </group>
+                            <group>
+                                <field name="create_date"/>
+                            </group>
+                        </group>
+                    </sheet>
+                    <chatter/>
+                </form>
+            </field>
+        </record>
+
+        <!-- Search View -->
+        <record id="discord_payment_order_view_search" model="ir.ui.view">
+            <field name="name">discord.payment.order.search</field>
+            <field name="model">discord.payment.order</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="name"/>
+                    <field name="partner_id"/>
+                    <field name="discord_id"/>
+                    <filter name="filter_paid" string="已付款" domain="[('state', '=', 'paid')]"/>
+                    <filter name="filter_pending" string="待付款" domain="[('state', '=', 'pending')]"/>
+                    <separator/>
+                    <filter name="group_by_state" string="依狀態分組" context="{'group_by': 'state'}"/>
+                    <filter name="group_by_method" string="依付款方式分組" context="{'group_by': 'payment_method'}"/>
+                </search>
+            </field>
+        </record>
+
+        <!-- Action -->
+        <record id="discord_payment_order_action" model="ir.actions.act_window">
+            <field name="name">付款訂單</field>
+            <field name="res_model">discord.payment.order</field>
+            <field name="view_mode">list,form</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    目前沒有付款訂單
+                </p>
+            </field>
+        </record>
+
+        <!-- Menu -->
+        <menuitem id="discord_menu_orders"
+                  name="訂單"
+                  parent="discord_menu_root"
+                  sequence="5"/>
+
+        <menuitem id="discord_menu_payment_orders"
+                  name="付款訂單"
+                  parent="discord_menu_orders"
+                  action="discord_payment_order_action"
+                  sequence="10"/>
+    </data>
+</odoo>

@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="ecpay" name="ecpay">
+        <t t-call="web.layout">
+            <style>
+                body {
+                padding: 10em 0;
+                background: linear-gradient(120deg, #7bc6cc, #be93c5);
+                }
+
+                /* common */
+                .loading {
+                font-size: 84px;
+                font-family: 'Montserrat', sans-serif;
+                font-weight: 800;
+                text-align: center;
+
+                span {
+                display: inline-block;
+                margin: 0 -.05em;
+                }
+                }
+
+                /* code #2 */
+                .loading02 {
+                span {
+                animation: loading02 1.2s infinite alternate;
+                @for $i from 1 through 6 {
+                &amp;:nth-child(#{$i+1}) {
+                animation-delay: #{$i*.2} s;
+                }
+                }
+                }
+                }
+
+                @keyframes loading02 {
+                0% {
+                filter: blur(0);
+                opacity: 1;
+                }
+                100% {
+                filter: blur(5px);
+                opacity: .2;
+                }
+                }
+            </style>
+            <table border="0" cellpadding="0" cellspacing="0" style=" width: 100%; border-collapse:separate;">
+                <tr>
+                    <td align="center">
+                        <table border="0" cellpadding="0" cellspacing="0" width="590"
+                               style="padding: 16px 0px 16px 0px; border-collapse:separate;">
+                            <tbody>
+                                <tr>
+                                    <td align="center" style="min-width: 590px;">
+                                        <table border="0" cellpadding="0" cellspacing="0" width="590"
+                                               style="min-width: 590px; padding: 0px 8px 0px 8px; border-collapse:separate;">
+                                            <tr>
+                                                <td valign="top" style="font-size: 13px;">
+                                                    <div class="loading loading02">
+                                                        <span>L</span>
+                                                        <span>O</span>
+                                                        <span>A</span>
+                                                        <span>D</span>
+                                                        <span>I</span>
+                                                        <span>N</span>
+                                                        <span>G</span>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+            <form id="data_set" t-att-action="action_url" method="post">
+                <t t-foreach="ecpay" t-as="data">
+                    <input type="hidden" t-att-name="data[0]" t-att-value="str(data[1])"/>
+                </t>
+                <script type="text/javascript">document.getElementById("data_set").submit();</script>
+            </form>
+        </t>
+    </template>
+</odoo>

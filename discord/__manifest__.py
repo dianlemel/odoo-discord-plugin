@@ -1,17 +1,21 @@
 {
     'name': 'Discord',
-    'version': '19.0.0.0.1',
+    'version': '19.0.0.0.5',
     'category': 'Technical',
     'author': "HE,XUE-DIAN",
-    'depends': ['base', 'sale_management'],
+    'depends': ['base', 'contacts', 'website', 'mail'],
     'description': "Discord 機器人",
     'data': [
         'security/ir.model.access.csv',
-        'views/ecpay_templates.xml',
         'views/res_config.xml',
+        'views/res_partner.xml',
+        'views/discord_channel.xml',
+        'views/transform_templates.xml',
+        'views/payment_templates.xml',
+        'views/payment_order.xml',
     ],
     "external_dependencies": {
-        "python": [],
+        "python": ['discord'],
     },
     'assets': {
         'web.assets_backend': [

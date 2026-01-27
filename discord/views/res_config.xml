@@ -9,6 +9,19 @@
             <field name="arch" type="xml">
                 <xpath expr="//form" position="inside">
                     <app data-string="Discord" string="Discord" name="discord">
+                        <block title="Discord" name="discord_block">
+                            <setting string="Bot Token">
+                                <field password="True" name="bot_token"/>
+                            </setting>
+                            <setting string="Bot 控制">
+                                <button name="action_restart_bot" type="object" string="重啟 Bot" class="btn-primary" icon="fa-refresh"/>
+                            </setting>
+                        </block>
+                        <block title="點數設定" name="points_block">
+                            <setting string="點數單價" help="每點多少元">
+                                <field name="point_price"/> 元
+                            </setting>
+                        </block>
                         <block title="綠界科技" name="ecpay_block">
                             <setting string="測試模式">
                                 <field name="ecpay_is_debug"/>
