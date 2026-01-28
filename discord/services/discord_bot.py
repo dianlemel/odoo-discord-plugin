@@ -116,6 +116,16 @@ class DiscordBotService:
     def is_running(self):
         return self._running
 
+    def clear_channel_cache(self):
+        """清除所有 Cog 的頻道快取"""
+        if not self._bot:
+            return
+
+        for cog in self._bot.cogs.values():
+            if hasattr(cog, 'clear_channel_cache'):
+                cog.clear_channel_cache()
+        _logger.info("已清除所有 Cog 的頻道快取")
+
 
 # 全域實例
 discord_bot_service = DiscordBotService()

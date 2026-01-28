@@ -1,7 +1,9 @@
 import logging
+import time
 from contextlib import contextmanager
 # noinspection PyUnresolvedReferences
 from discord.ext import commands
+# noinspection PyUnresolvedReferences
 from discord.ext.commands import CheckFailure
 
 import odoo
@@ -9,6 +11,9 @@ from odoo import api
 from odoo.modules.registry import Registry
 
 _logger = logging.getLogger(__name__)
+
+# 快取過期時間（秒）- 設為 60 秒，確保設定變更後最多 60 秒內生效
+CHANNEL_CACHE_TTL = 60
 
 
 class BaseCog(commands.Cog):
@@ -21,10 +26,18 @@ class BaseCog(commands.Cog):
         self.bot = bot
         self._db_name = db_name
         self._channel_cache = {}
+        self._cache_time = {}
+
+    def _is_cache_valid(self, channel_type: str) -> bool:
+        """檢查快取是否仍有效"""
+        if channel_type not in self._cache_time:
+            return False
+        return (time.time() - self._cache_time[channel_type]) < CHANNEL_CACHE_TTL
 
     def get_allowed_channels(self, channel_type: str) -> list | None:
         """根據類型從 Odoo 取得允許的頻道列表，失敗時返回 None"""
-        if channel_type in self._channel_cache:
+        # 檢查快取是否有效
+        if channel_type in self._channel_cache and self._is_cache_valid(channel_type):
             return self._channel_cache[channel_type]
 
         try:
@@ -36,15 +49,18 @@ class BaseCog(commands.Cog):
                 else:
                     channels = env['discord.channel.config'].get_channels_by_type(channel_type)
                     self._channel_cache[channel_type] = channels
+                self._cache_time[channel_type] = time.time()
         except Exception as e:
             _logger.error(f"取得允許頻道失敗: {e}")
             self._channel_cache[channel_type] = None
+            self._cache_time[channel_type] = time.time()
 
         return self._channel_cache[channel_type]
 
     def clear_channel_cache(self):
         """清除頻道快取（設定變更時呼叫）"""
         self._channel_cache = {}
+        self._cache_time = {}
 
     async def cog_check(self, ctx):
         """所有指令執行前的檢查 - 驗證頻道"""
