@@ -5,3 +5,4 @@ access_discord_points_order,discord.points.order,model_discord_points_order,base
 access_discord_points_order_public,discord.points.order.public,model_discord_points_order,base.group_public,1,0,1,0
 access_discord_points_gift,discord.points.gift,model_discord_points_gift,base.group_system,1,1,1,1
 access_discord_points_gift_public,discord.points.gift.public,model_discord_points_gift,base.group_public,1,0,1,0
+access_discord_message_template,discord.message.template,model_discord_message_template,base.group_system,1,1,1,1

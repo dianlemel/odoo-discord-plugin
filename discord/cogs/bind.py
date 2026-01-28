@@ -1,4 +1,7 @@
+import base64
 import logging
+
+import aiohttp
 # noinspection PyUnresolvedReferences
 from discord.ext import commands
 
@@ -31,25 +34,51 @@ class BindCog(BaseCog):
         # 處理指令
         await self._handle_bind(message)
 
+        # 刪除使用者的指令訊息
+        await self.delete_command_message(message)
+
+    async def _fetch_avatar(self, user) -> str | None:
+        """取得使用者頭像並轉為 base64"""
+        try:
+            avatar = user.display_avatar
+            if not avatar:
+                return None
+
+            async with aiohttp.ClientSession() as session:
+                async with session.get(avatar.url) as resp:
+                    if resp.status == 200:
+                        image_data = await resp.read()
+                        return base64.b64encode(image_data).decode('utf-8')
+        except Exception as e:
+            _logger.warning(f"取得頭像失敗: {e}")
+        return None
+
     async def _handle_bind(self, message):
         """處理綁定指令"""
         discord_user_id = str(message.author.id)
         discord_username = message.author.name
 
         try:
+            # 先取得頭像
+            avatar_base64 = await self._fetch_avatar(message.author)
+
             with self.odoo_env() as env:
                 partner = self.get_partner_by_discord_id(env, discord_user_id)
 
                 if partner:
-                    await message.channel.send(
-                        f"{discord_username} 已經綁定過了！目前有 {partner.points} 點"
+                    await message.author.send(
+                        f"你已經綁定過了！目前有 {partner.points} 點"
                     )
                 else:
-                    env['res.partner'].sudo().create({
+                    vals = {
                         'name': discord_username,
                         'discord_id': discord_user_id,
                         'points': 0,
-                    })
-                    await message.channel.send(f"{discord_username} 綁定成功！")
+                    }
+                    if avatar_base64:
+                        vals['image_1920'] = avatar_base64
+
+                    env['res.partner'].sudo().create(vals)
+                    await message.author.send("綁定成功！")
         except Exception as e:
             _logger.error(f"綁定帳號失敗: {e}")

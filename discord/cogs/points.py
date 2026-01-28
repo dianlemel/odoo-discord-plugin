@@ -32,6 +32,9 @@ class PointsCog(BaseCog):
         # 處理指令
         await self._handle_points(message)
 
+        # 刪除使用者的指令訊息
+        await self.delete_command_message(message)
+
     async def _handle_points(self, message):
         """處理點數查詢指令"""
         discord_user_id = str(message.author.id)
@@ -42,6 +45,6 @@ class PointsCog(BaseCog):
                 partner = self.get_partner_by_discord_id(env, discord_user_id)
 
                 if partner:
-                    await message.channel.send(f"{discord_username} 目前有 {partner.points} 點")
+                    await message.author.send(f"你目前有 {partner.points} 點")
         except Exception as e:
             _logger.error(f"查詢點數失敗: {e}")

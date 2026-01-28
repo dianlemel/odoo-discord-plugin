@@ -31,6 +31,9 @@ class BuyCog(BaseCog):
         # 處理指令
         await self._handle_buy(message, args)
 
+        # 刪除使用者的指令訊息
+        await self.delete_command_message(message)
+
     async def _handle_buy(self, message, args):
         """處理購買指令"""
         # 檢查參數
@@ -56,10 +59,9 @@ class BuyCog(BaseCog):
 
             # 私訊給使用者
             await message.author.send(
-                f"您要購買 {amount} 點\n"
+                f"你要購買 {amount} 點\n"
                 f"請點擊以下連結完成付款：\n{payment_url}"
             )
-            await message.channel.send(f"{message.author.mention} 付款連結已私訊給您，請查收！")
 
         except Exception as e:
             _logger.error(f"購買點數失敗: {e}")

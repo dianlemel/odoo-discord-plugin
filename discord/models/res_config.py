@@ -26,6 +26,12 @@ class ResConfigSettings(models.TransientModel):
     bot_token = fields.Char('Bot Token')
     point_price = fields.Integer('點數單價', default=10, help='每點多少元')
 
+    # 贈送公告設定
+    gift_announcement_channel = fields.Char('公告頻道 ID', help='贈送點數時發送公告的頻道 ID')
+
+    # 指令設定
+    command_delete_delay = fields.Integer('指令自動刪除秒數', default=5, help='使用者輸入指令後自動刪除的秒數，0 表示不刪除')
+
     def set_values(self):
         super(ResConfigSettings, self).set_values()
         ir_config_parameter = self.env['ir.config_parameter'].sudo()
@@ -42,6 +48,10 @@ class ResConfigSettings(models.TransientModel):
         # 其他設定
         ir_config_parameter.set_param('discord.bot_token', self.bot_token)
         ir_config_parameter.set_param('discord.point_price', self.point_price or 10)
+        # 贈送公告設定
+        ir_config_parameter.set_param('discord.gift_announcement_channel', self.gift_announcement_channel or '')
+        # 指令設定
+        ir_config_parameter.set_param('discord.command_delete_delay', self.command_delete_delay if self.command_delete_delay >= 0 else 5)
 
     @api.model
     def get_ecpay_sdk(self):
@@ -131,6 +141,16 @@ class ResConfigSettings(models.TransientModel):
         opay_is_debug = ir_config_parameter.get_param('discord.opay_is_debug')
         if opay_is_debug:
             res.update(opay_is_debug=str(opay_is_debug).lower() == 'true')
+
+        # 贈送公告設定
+        gift_announcement_channel = ir_config_parameter.get_param('discord.gift_announcement_channel')
+        if gift_announcement_channel:
+            res.update(gift_announcement_channel=gift_announcement_channel)
+
+        # 指令設定
+        command_delete_delay = ir_config_parameter.get_param('discord.command_delete_delay')
+        if command_delete_delay is not None:
+            res.update(command_delete_delay=int(command_delete_delay))
 
         return res
 

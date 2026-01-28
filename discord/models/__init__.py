@@ -5,4 +5,5 @@ from . import discord_channel
 from . import discord_command
 from . import points_order
 from . import points_gift
+from . import message_template
 

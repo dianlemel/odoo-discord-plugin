@@ -1,6 +1,10 @@
 import asyncio
 import logging
 import threading
+import warnings
+
+# 忽略 discord.py 的 DeprecationWarning (aiohttp timeout 參數)
+warnings.filterwarnings('ignore', message='.*timeout.*ClientWSTimeout.*', category=DeprecationWarning)
 
 import discord
 # noinspection PyUnresolvedReferences
