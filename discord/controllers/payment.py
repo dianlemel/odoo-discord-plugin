@@ -11,6 +11,29 @@ _logger = logging.getLogger(__name__)
 
 class DiscordPayment(http.Controller):
 
+    def _attach_payment_message_to_order(self, order, discord_id):
+        """
+        將暫存的付款連結訊息資訊附加到訂單
+
+        :param order: 訂單記錄
+        :param discord_id: Discord 用戶 ID
+        """
+        try:
+            from ..services.discord_bot import discord_bot_service
+
+            if not discord_bot_service.is_running:
+                return
+
+            message_info = discord_bot_service.get_pending_payment_message(discord_id)
+            if message_info:
+                order.sudo().write({
+                    'payment_message_id': message_info['message_id'],
+                    'payment_channel_id': message_info['channel_id'],
+                })
+                _logger.info(f"已將付款連結訊息資訊附加到訂單 {order.name}")
+        except Exception as e:
+            _logger.error(f"附加付款連結訊息資訊失敗: {e}")
+
     @http.route('/discord/pay', auth='public', type='http', website=True)
     def payment_page(self, discord_id=None, points=None, **kwargs):
         """付款頁面 - 顯示付款選項"""
@@ -79,6 +102,9 @@ class DiscordPayment(http.Controller):
             return request.render('discord.payment_error', {
                 'error_message': '建立訂單失敗，請確認帳號已綁定',
             })
+
+        # 取得暫存的付款連結訊息資訊並存入訂單
+        self._attach_payment_message_to_order(order, discord_id)
 
         # 取得綠界 SDK
         try:
@@ -184,6 +210,9 @@ class DiscordPayment(http.Controller):
             return request.render('discord.payment_error', {
                 'error_message': '建立訂單失敗，請確認帳號已綁定',
             })
+
+        # 取得暫存的付款連結訊息資訊並存入訂單
+        self._attach_payment_message_to_order(order, discord_id)
 
         # 取得歐富寶 SDK
         try:

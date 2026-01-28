@@ -27,6 +27,7 @@ class DiscordMessageTemplate(models.Model):
         """模板類型，新增模板類型時在這裡擴充"""
         return [
             ('gift_announcement', '贈送公告'),
+            ('payment_notification', '付款成功通知'),
         ]
 
     _sql_constraints = [

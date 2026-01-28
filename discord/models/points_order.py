@@ -1,5 +1,9 @@
+import logging
 import time
+
 from odoo import fields, models, api
+
+_logger = logging.getLogger(__name__)
 
 
 class DiscordPointsOrder(models.Model):
@@ -25,6 +29,10 @@ class DiscordPointsOrder(models.Model):
     ], string='付款方式', readonly=True, tracking=True)
     trade_no = fields.Char(string='金流交易編號', readonly=True, tracking=True)
     payment_date = fields.Datetime(string='付款時間', readonly=True)
+    payment_message_id = fields.Char(string='付款連結訊息 ID', readonly=True,
+                                      help='Discord 私訊中付款連結的訊息 ID，用於付款成功後刪除')
+    payment_channel_id = fields.Char(string='付款連結頻道 ID', readonly=True,
+                                      help='Discord 私訊頻道 ID')
 
     @api.model
     def create_order(self, discord_id: str, points: int, amount: int, payment_method: str):
@@ -53,6 +61,9 @@ class DiscordPointsOrder(models.Model):
 
     def mark_as_paid(self, trade_no: str):
         """標記為已付款並加點"""
+        # 記錄加點前的點數
+        points_before = self.partner_id.points if self.partner_id else 0
+
         self.sudo().write({
             'state': 'paid',
             'trade_no': trade_no,
@@ -65,4 +76,54 @@ class DiscordPointsOrder(models.Model):
                 'points': self.partner_id.points + self.points
             })
 
+        points_after = self.partner_id.points if self.partner_id else 0
+
+        # 發送 Discord 通知
+        self._send_payment_notification(points_before, points_after)
+
         return True
+
+    def _send_payment_notification(self, points_before: int, points_after: int):
+        """發送付款成功的 Discord 通知"""
+        try:
+            from ..services.discord_bot import discord_bot_service
+
+            if not discord_bot_service.is_running:
+                _logger.warning("Discord Bot 未運行，無法發送付款通知")
+                return
+
+            # 渲染通知訊息
+            notification = self.env['discord.message.template'].render_by_type(
+                'payment_notification',
+                {
+                    'order_no': self.name,
+                    'points': self.points,
+                    'amount': self.amount,
+                    'points_before': points_before,
+                    'points_after': points_after,
+                }
+            )
+
+            if not notification:
+                # 如果沒有模板，使用預設訊息
+                notification = (
+                    f"🎉 付款成功！\n\n"
+                    f"訂單編號：{self.name}\n"
+                    f"購買點數：{self.points} 點\n"
+                    f"付款金額：NT$ {self.amount}\n\n"
+                    f"💰 點數變化：\n"
+                    f"　變更前：{points_before} 點\n"
+                    f"　變更後：{points_after} 點\n\n"
+                    f"感謝您的購買！"
+                )
+
+            # 排程 Discord 通知任務
+            discord_bot_service.schedule_payment_notification(
+                discord_id=self.discord_id,
+                message=notification,
+                payment_message_id=self.payment_message_id,
+                payment_channel_id=self.payment_channel_id,
+            )
+
+        except Exception as e:
+            _logger.error(f"發送付款通知失敗: {e}")

@@ -18,5 +18,32 @@
 - 條件判斷: {% if note %}有備註{% endif %}
 - 預設值: {{ note or '無備註' }}</field>
         </record>
+
+        <!-- 付款成功通知模板 -->
+        <record id="template_payment_notification" model="discord.message.template">
+            <field name="name">付款成功通知</field>
+            <field name="template_type">payment_notification</field>
+            <field name="body">🎉 付款成功！
+
+訂單編號：{{ order_no }}
+購買點數：{{ points }} 點
+付款金額：NT$ {{ amount }}
+
+💰 點數變化：
+　變更前：{{ points_before }} 點
+　變更後：{{ points_after }} 點
+
+感謝您的購買！</field>
+            <field name="description">付款成功後發送給用戶的私訊通知
+
+可用變數：
+- {{ order_no }} - 訂單編號
+- {{ points }} - 購買點數
+- {{ amount }} - 付款金額
+- {{ points_before }} - 加點前的點數
+- {{ points_after }} - 加點後的點數
+
+支援 Jinja2 語法</field>
+        </record>
     </data>
 </odoo>

@@ -1,10 +1,24 @@
 import logging
+
+import discord
 # noinspection PyUnresolvedReferences
 from discord.ext import commands
 
 from .base import BaseCog
 
 _logger = logging.getLogger(__name__)
+
+
+class PaymentView(discord.ui.View):
+    """付款按鈕視圖"""
+
+    def __init__(self, payment_url: str, points: int):
+        super().__init__(timeout=None)  # 不過期
+        self.add_item(discord.ui.Button(
+            label=f"💳 點擊付款 ({points} 點)",
+            url=payment_url,
+            style=discord.ButtonStyle.link
+        ))
 
 
 class BuyCog(BaseCog):
@@ -54,16 +68,23 @@ class BuyCog(BaseCog):
             if not payment_url:
                 return
 
-            # 私訊給使用者
-            await message.author.send(
-                f"你要購買 {amount} 點\n"
-                f"請點擊以下連結完成付款：\n{payment_url}"
+            # 私訊給使用者（使用按鈕）
+            dm_message = await message.author.send(
+                f"你要購買 **{amount}** 點\n請點擊下方按鈕完成付款：",
+                view=PaymentView(payment_url, amount)
+            )
+
+            # 暫存訊息資訊，用於付款成功後刪除
+            self._store_payment_message_info(
+                discord_user_id,
+                str(dm_message.id),
+                str(dm_message.channel.id)
             )
 
         except Exception as e:
             _logger.error(f"購買點數失敗: {e}")
 
-    def _generate_payment_url(self, discord_user_id: str, amount: int) -> str:
+    def _generate_payment_url(self, discord_user_id: str, amount: int) -> str | None:
         """產生付款連結"""
         try:
             with self.odoo_env() as env:
@@ -72,3 +93,17 @@ class BuyCog(BaseCog):
         except Exception as e:
             _logger.error(f"產生付款連結失敗: {e}")
             return None
+
+    def _store_payment_message_info(self, discord_user_id: str, message_id: str, channel_id: str):
+        """
+        暫存付款連結訊息資訊到 bot service
+
+        當訂單建立時會從這裡取得訊息資訊並存入訂單
+        """
+        try:
+            from ..services.discord_bot import discord_bot_service
+            discord_bot_service.store_pending_payment_message(
+                discord_user_id, message_id, channel_id
+            )
+        except Exception as e:
+            _logger.error(f"暫存付款連結訊息資訊失敗: {e}")

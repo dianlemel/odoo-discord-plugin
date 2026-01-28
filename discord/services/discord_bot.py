@@ -37,6 +37,9 @@ class DiscordBotService:
         self._loop = None
         self._running = False
         self._db_name = None
+        # 暫存付款連結訊息資訊，用於付款成功後刪除
+        # key: discord_id, value: {'message_id': str, 'channel_id': str}
+        self._pending_payment_messages = {}
 
     def _setup_bot(self, token: str):
         """設定 Discord Bot"""
@@ -149,6 +152,96 @@ class DiscordBotService:
             if hasattr(cog, 'clear_autodelete_cache'):
                 cog.clear_autodelete_cache()
         _logger.info("已清除自動刪除頻道快取")
+
+    def store_pending_payment_message(self, discord_id: str, message_id: str, channel_id: str):
+        """
+        暫存付款連結訊息資訊
+
+        :param discord_id: Discord 用戶 ID
+        :param message_id: 訊息 ID
+        :param channel_id: 頻道 ID
+        """
+        self._pending_payment_messages[discord_id] = {
+            'message_id': message_id,
+            'channel_id': channel_id,
+        }
+        _logger.info(f"已暫存付款連結訊息: discord_id={discord_id}, message_id={message_id}")
+
+    def get_pending_payment_message(self, discord_id: str) -> dict | None:
+        """
+        取得並移除暫存的付款連結訊息資訊
+
+        :param discord_id: Discord 用戶 ID
+        :return: {'message_id': str, 'channel_id': str} 或 None
+        """
+        return self._pending_payment_messages.pop(discord_id, None)
+
+    def schedule_payment_notification(self, discord_id: str, message: str,
+                                       payment_message_id: str = None,
+                                       payment_channel_id: str = None):
+        """
+        排程付款成功通知
+
+        :param discord_id: Discord 用戶 ID
+        :param message: 通知訊息內容
+        :param payment_message_id: 原付款連結訊息 ID（用於刪除）
+        :param payment_channel_id: 原付款連結頻道 ID（用於刪除）
+        """
+        if not self._running or not self._loop or not self._bot:
+            _logger.warning("Discord Bot 未運行，無法排程付款通知")
+            return
+
+        asyncio.run_coroutine_threadsafe(
+            self._send_payment_notification(
+                discord_id, message, payment_message_id, payment_channel_id
+            ),
+            self._loop
+        )
+
+    async def _send_payment_notification(self, discord_id: str, message: str,
+                                          payment_message_id: str = None,
+                                          payment_channel_id: str = None):
+        """
+        發送付款成功通知並刪除原付款連結訊息
+
+        :param discord_id: Discord 用戶 ID
+        :param message: 通知訊息內容
+        :param payment_message_id: 原付款連結訊息 ID（用於刪除）
+        :param payment_channel_id: 原付款連結頻道 ID（用於刪除）
+        """
+        try:
+            # 取得用戶
+            user = await self._bot.fetch_user(int(discord_id))
+            if not user:
+                _logger.warning(f"找不到 Discord 用戶: {discord_id}")
+                return
+
+            # 發送付款成功通知
+            await user.send(message)
+            _logger.info(f"已發送付款通知給用戶 {discord_id}")
+
+            # 刪除原付款連結訊息
+            if payment_message_id and payment_channel_id:
+                try:
+                    channel = await self._bot.fetch_channel(int(payment_channel_id))
+                    if channel:
+                        original_message = await channel.fetch_message(int(payment_message_id))
+                        if original_message:
+                            await original_message.delete()
+                            _logger.info(f"已刪除原付款連結訊息 {payment_message_id}")
+                except discord.NotFound:
+                    _logger.warning(f"找不到原付款連結訊息 {payment_message_id}，可能已被刪除")
+                except discord.Forbidden:
+                    _logger.warning(f"無權限刪除訊息 {payment_message_id}")
+                except Exception as e:
+                    _logger.error(f"刪除原付款連結訊息失敗: {e}")
+
+        except discord.NotFound:
+            _logger.warning(f"找不到 Discord 用戶: {discord_id}")
+        except discord.Forbidden:
+            _logger.warning(f"無法私訊用戶 {discord_id}，可能已關閉私訊")
+        except Exception as e:
+            _logger.error(f"發送付款通知失敗: {e}")
 
 
 # 全域實例

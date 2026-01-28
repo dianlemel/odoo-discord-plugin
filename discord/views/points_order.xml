@@ -14,7 +14,7 @@
                     <field name="amount"/>
                     <field name="payment_method"/>
                     <field name="state" widget="badge" decoration-success="state == 'paid'" decoration-warning="state == 'pending'" decoration-danger="state == 'failed'"/>
-                    <field name="create_date"/>
+                    <field name="create_date" string="建立時間"/>
                 </list>
             </field>
         </record>
@@ -47,7 +47,7 @@
                                 <field name="payment_date"/>
                             </group>
                             <group>
-                                <field name="create_date"/>
+                                <field name="create_date" string="建立時間"/>
                             </group>
                         </group>
                     </sheet>

@@ -76,6 +76,8 @@ discord/
 | state | Selection | pending/paid/failed/cancelled |
 | payment_method | Selection | ecpay/opay |
 | trade_no | Char | 金流交易編號 |
+| payment_message_id | Char | 付款連結訊息 ID (用於付款成功後刪除) |
+| payment_channel_id | Char | 付款連結頻道 ID |
 
 ### discord.points.gift
 點數贈送紀錄。
@@ -125,10 +127,17 @@ discord/
 | 欄位 | 類型 | 說明 |
 |------|------|------|
 | name | Char | 模板名稱 |
-| template_type | Selection | 模板類型 (如 gift_announcement) |
+| template_type | Selection | 模板類型 |
 | body | Text | 模板內容 (Jinja2) |
 | description | Text | 說明與可用變數 |
 | active | Boolean | 是否啟用 |
+
+**模板類型：**
+
+| 類型 | 說明 | 可用變數 |
+|------|------|----------|
+| gift_announcement | 贈送公告 | sender, receiver, points, note |
+| payment_notification | 付款成功通知 | order_no, points, amount, points_before, points_after |
 
 **使用方式：**
 ```python
@@ -165,7 +174,7 @@ parse_command() ← 從 discord.command.config 取得指令列表
 |------|------|------|
 | !bind | bind | 綁定 Discord 帳號（同步頭像，私訊回覆） |
 | !points | points | 查詢點數餘額（私訊回覆） |
-| !buy \<數量\> | buy | 購買點數（私訊付款連結） |
+| !buy \<數量\> | buy | 購買點數（私訊付款按鈕，付款成功後通知） |
 | !gift @用戶 \<點數\> [備註] | gift | 贈送點數給其他用戶（私訊回覆，公告頻道另發） |
 
 ### 訊息回覆原則
@@ -293,18 +302,51 @@ COGS = [
 ```
 !buy 100
     ↓
-產生付款連結 → 私訊用戶
+產生付款連結 → 私訊用戶（按鈕形式）
     ↓
-用戶點擊連結 → /discord/pay 頁面
+暫存訊息 ID 到 discord_bot_service
+    ↓
+用戶點擊按鈕 → /discord/pay 頁面
     ↓
 選擇付款方式 → 建立 points.order (pending)
+    ↓
+從 bot service 取得訊息 ID → 存入訂單
     ↓
 跳轉金流商付款
     ↓
 金流回調 → 驗證簽名 → mark_as_paid()
     ↓
+記錄加點前點數
+    ↓
 partner.points += order.points
+    ↓
+發送付款成功通知（私訊）
+    ↓
+刪除原付款連結訊息
 ```
+
+#### 付款按鈕
+
+購買指令會發送帶有按鈕的私訊，而非純文字連結：
+
+```python
+class PaymentView(discord.ui.View):
+    def __init__(self, payment_url: str, points: int):
+        super().__init__(timeout=None)
+        self.add_item(discord.ui.Button(
+            label=f"💳 點擊付款 ({points} 點)",
+            url=payment_url,
+            style=discord.ButtonStyle.link
+        ))
+```
+
+#### 付款成功通知
+
+付款成功後會自動：
+1. 發送私訊通知用戶，包含點數變化（變更前/後）
+2. 刪除原本的付款連結訊息
+
+通知內容使用 `payment_notification` 模板，可在後台自訂。
 
 ### 贈送流程
 
@@ -352,6 +394,32 @@ receiver.points += 100
 
 {# 數字格式化 #}
 {{ "{:,}".format(points) }} 點
+```
+
+### 付款成功通知設定
+
+付款成功後會自動私訊用戶，使用 `payment_notification` 模板。
+
+可用變數：
+- `{{ order_no }}` - 訂單編號
+- `{{ points }}` - 購買點數
+- `{{ amount }}` - 付款金額
+- `{{ points_before }}` - 加點前的點數
+- `{{ points_after }}` - 加點後的點數
+
+**預設模板：**
+```jinja2
+🎉 付款成功！
+
+訂單編號：{{ order_no }}
+購買點數：{{ points }} 點
+付款金額：NT$ {{ amount }}
+
+💰 點數變化：
+　變更前：{{ points_before }} 點
+　變更後：{{ points_after }} 點
+
+感謝您的購買！
 ```
 
 ---
@@ -444,6 +512,40 @@ AutodeleteCog 檢查發送者類型
 | 刪除機器人訊息 | 是否刪除機器人的訊息（預設否） |
 | 刪除一般使用者訊息 | 是否刪除一般使用者的訊息（預設是） |
 | 啟用 | 是否啟用此設定 |
+
+---
+
+## DiscordBotService 方法
+
+`discord_bot_service` 是全域單例，提供從 Odoo 模型/控制器與 Discord Bot 互動的方法：
+
+| 方法 | 說明 |
+|------|------|
+| `start(db_name, token)` | 啟動 Bot 服務 |
+| `stop()` | 停止 Bot 服務 |
+| `is_running` | 檢查 Bot 是否運行中 |
+| `store_pending_payment_message(discord_id, message_id, channel_id)` | 暫存付款連結訊息資訊 |
+| `get_pending_payment_message(discord_id)` | 取得並移除暫存的訊息資訊 |
+| `schedule_payment_notification(discord_id, message, ...)` | 排程發送付款成功通知 |
+| `clear_channel_cache()` | 清除頻道快取 |
+| `clear_command_cache()` | 清除指令快取 |
+| `clear_autodelete_cache()` | 清除自動刪除快取 |
+
+### 從 Odoo 發送 Discord 通知
+
+由於 Odoo HTTP 控制器是同步的，而 Discord 操作是非同步的，需要透過 `asyncio.run_coroutine_threadsafe()` 排程：
+
+```python
+from ..services.discord_bot import discord_bot_service
+
+# 在 Odoo model 或 controller 中
+discord_bot_service.schedule_payment_notification(
+    discord_id='123456789',
+    message='付款成功！',
+    payment_message_id='987654321',  # 要刪除的原訊息
+    payment_channel_id='111222333',
+)
+```
 
 ---
 
