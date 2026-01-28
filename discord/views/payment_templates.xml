@@ -144,6 +144,41 @@
             </t>
         </template>
 
+        <!-- 歐富寶付款表單 (自動提交) -->
+        <template id="opay_form" name="歐富寶付款表單">
+            <t t-call="web.layout">
+                <t t-set="head">
+                    <style>
+                        .loading-container {
+                            max-width: 500px;
+                            margin: 100px auto;
+                            text-align: center;
+                        }
+                        .loading-spinner {
+                            font-size: 3em;
+                            animation: spin 1s linear infinite;
+                        }
+                        @keyframes spin {
+                            from { transform: rotate(0deg); }
+                            to { transform: rotate(360deg); }
+                        }
+                    </style>
+                </t>
+                <div class="loading-container">
+                    <div class="loading-spinner">⏳</div>
+                    <p>正在跳轉至歐富寶付款頁面...</p>
+                </div>
+                <form id="opay-form" method="POST" t-att-action="action_url">
+                    <t t-foreach="params.items()" t-as="param">
+                        <input type="hidden" t-att-name="param[0]" t-att-value="param[1]"/>
+                    </t>
+                </form>
+                <script>
+                    document.getElementById('opay-form').submit();
+                </script>
+            </t>
+        </template>
+
         <!-- 付款結果頁面 -->
         <template id="payment_result" name="付款結果">
             <t t-call="web.layout">
@@ -190,7 +225,7 @@
                         <p>點數已加入您的帳戶</p>
                     </t>
                     <t t-elif="order.state == 'pending'">
-                        <meta http-equiv="refresh" content="60"/>
+                        <meta http-equiv="refresh" content="5"/>
                         <div class="result-icon pending">⏳</div>
                         <h2>等待付款確認</h2>
                         <p>請稍候，系統正在處理您的付款</p>
