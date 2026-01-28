@@ -53,4 +53,3 @@ class BindCog(BaseCog):
                     await message.channel.send(f"{discord_username} 綁定成功！")
         except Exception as e:
             _logger.error(f"綁定帳號失敗: {e}")
-            await message.channel.send(f"{message.author.mention} 綁定失敗，請稍後再試")

@@ -21,5 +21,12 @@
             <field name="command_type">buy</field>
             <field name="description">預設購買指令</field>
         </record>
+
+        <!-- 預設贈送指令 -->
+        <record id="command_gift" model="discord.command.config">
+            <field name="command_name">gift</field>
+            <field name="command_type">gift</field>
+            <field name="description">預設贈送指令</field>
+        </record>
     </data>
 </odoo>

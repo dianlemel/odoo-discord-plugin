@@ -43,8 +43,5 @@ class PointsCog(BaseCog):
 
                 if partner:
                     await message.channel.send(f"{discord_username} 目前有 {partner.points} 點")
-                else:
-                    await message.channel.send(f"{discord_username} 尚未綁定帳號，請先綁定！")
         except Exception as e:
             _logger.error(f"查詢點數失敗: {e}")
-            await message.channel.send(f"{message.author.mention} 查詢失敗，請稍後再試")

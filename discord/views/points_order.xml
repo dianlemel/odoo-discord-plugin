@@ -93,14 +93,9 @@
         </record>
 
         <!-- Menu -->
-        <menuitem id="discord_menu_orders"
-                  name="訂單"
-                  parent="discord_menu_root"
-                  sequence="5"/>
-
         <menuitem id="discord_menu_points_orders"
-                  name="點數購買訂單"
-                  parent="discord_menu_orders"
+                  name="購買訂單"
+                  parent="discord_menu_points"
                   action="discord_points_order_action"
                   sequence="10"/>
     </data>

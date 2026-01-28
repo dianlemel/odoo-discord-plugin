@@ -48,15 +48,6 @@
         </record>
 
         <!-- Menu -->
-        <menuitem id="discord_menu_root"
-                  name="Discord"
-                  sequence="100"/>
-
-        <menuitem id="discord_menu_config"
-                  name="設定"
-                  parent="discord_menu_root"
-                  sequence="10"/>
-
         <menuitem id="discord_menu_channel_config"
                   name="頻道設定"
                   parent="discord_menu_config"
