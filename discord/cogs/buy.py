@@ -31,9 +31,6 @@ class BuyCog(BaseCog):
         # 處理指令
         await self._handle_buy(message, args)
 
-        # 刪除使用者的指令訊息
-        await self.delete_command_message(message)
-
     async def _handle_buy(self, message, args):
         """處理購買指令"""
         # 檢查參數

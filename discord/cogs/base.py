@@ -161,32 +161,3 @@ class BaseCog(commands.Cog):
         return env['res.partner'].sudo().search([
             ('discord_id', '=', discord_user_id)
         ], limit=1)
-
-    def get_command_delete_delay(self) -> int:
-        """取得指令自動刪除的秒數"""
-        cache_key = 'command_delete_delay'
-
-        if cache_key in self._cache_time and self._is_cache_valid(cache_key):
-            return self._command_cache.get(cache_key, 5)
-
-        try:
-            with self.odoo_env() as env:
-                config = env['ir.config_parameter'].sudo()
-                delay = config.get_param('discord.command_delete_delay', '5')
-                self._command_cache[cache_key] = int(delay) if delay else 5
-                self._cache_time[cache_key] = time.time()
-        except Exception as e:
-            _logger.error(f"取得指令刪除秒數失敗: {e}")
-            self._command_cache[cache_key] = 5
-            self._cache_time[cache_key] = time.time()
-
-        return self._command_cache.get(cache_key, 5)
-
-    async def delete_command_message(self, message):
-        """刪除使用者的指令訊息"""
-        try:
-            delay = self.get_command_delete_delay()
-            if delay > 0:
-                await message.delete(delay=delay)
-        except Exception as e:
-            _logger.warning(f"刪除指令訊息失敗: {e}")

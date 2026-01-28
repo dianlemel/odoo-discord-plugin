@@ -140,6 +140,16 @@ class DiscordBotService:
                 cog.clear_command_cache()
         _logger.info("已清除所有 Cog 的指令快取")
 
+    def clear_autodelete_cache(self):
+        """清除自動刪除頻道快取"""
+        if not self._bot:
+            return
+
+        for cog in self._bot.cogs.values():
+            if hasattr(cog, 'clear_autodelete_cache'):
+                cog.clear_autodelete_cache()
+        _logger.info("已清除自動刪除頻道快取")
+
 
 # 全域實例
 discord_bot_service = DiscordBotService()

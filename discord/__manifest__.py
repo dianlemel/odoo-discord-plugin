@@ -14,6 +14,7 @@
         'views/res_partner.xml',
         'views/discord_channel.xml',
         'views/discord_command.xml',
+        'views/channel_autodelete.xml',
         'views/message_template.xml',
         'views/payment_templates.xml',
         'views/points_order.xml',

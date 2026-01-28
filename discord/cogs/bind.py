@@ -34,9 +34,6 @@ class BindCog(BaseCog):
         # 處理指令
         await self._handle_bind(message)
 
-        # 刪除使用者的指令訊息
-        await self.delete_command_message(message)
-
     async def _fetch_avatar(self, user) -> str | None:
         """取得使用者頭像並轉為 base64"""
         try:
