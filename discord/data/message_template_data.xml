@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- 贈送公告模板 -->
+        <record id="template_gift_announcement" model="discord.message.template">
+            <field name="name">贈送公告</field>
+            <field name="template_type">gift_announcement</field>
+            <field name="body">@everyone {{ sender }} 贈送給 {{ receiver }} {{ points }} 點！{% if note %} ({{ note }}){% endif %}</field>
+            <field name="description">贈送點數時發送的公告訊息
+
+可用變數：
+- {{ sender }} - 贈送者 (@ mention 格式)
+- {{ receiver }} - 接收者 (@ mention 格式)
+- {{ points }} - 贈送點數
+- {{ note }} - 備註 (可能為 None)
+
+支援 Jinja2 語法，例如：
+- 條件判斷: {% if note %}有備註{% endif %}
+- 預設值: {{ note or '無備註' }}</field>
+        </record>
+    </data>
+</odoo>

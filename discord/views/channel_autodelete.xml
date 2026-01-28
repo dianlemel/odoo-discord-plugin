@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- List View -->
+        <record id="discord_channel_autodelete_view_list" model="ir.ui.view">
+            <field name="name">discord.channel.autodelete.list</field>
+            <field name="model">discord.channel.autodelete</field>
+            <field name="arch" type="xml">
+                <list editable="bottom">
+                    <field name="channel_id"/>
+                    <field name="channel_name"/>
+                    <field name="delete_delay"/>
+                    <field name="delete_admin"/>
+                    <field name="delete_bot"/>
+                    <field name="delete_user"/>
+                    <field name="active"/>
+                </list>
+            </field>
+        </record>
+
+        <!-- Form View -->
+        <record id="discord_channel_autodelete_view_form" model="ir.ui.view">
+            <field name="name">discord.channel.autodelete.form</field>
+            <field name="model">discord.channel.autodelete</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group>
+                            <group string="頻道資訊">
+                                <field name="channel_id"/>
+                                <field name="channel_name"/>
+                                <field name="delete_delay"/>
+                                <field name="active"/>
+                            </group>
+                            <group string="刪除對象">
+                                <field name="delete_admin"/>
+                                <field name="delete_bot"/>
+                                <field name="delete_user"/>
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <!-- Action -->
+        <record id="discord_channel_autodelete_action" model="ir.actions.act_window">
+            <field name="name">自動刪除頻道</field>
+            <field name="res_model">discord.channel.autodelete</field>
+            <field name="view_mode">list,form</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    新增自動刪除頻道
+                </p>
+                <p>
+                    在這些頻道中，所有訊息（管理員和機器人除外）都會在指定秒數後自動刪除。
+                </p>
+            </field>
+        </record>
+
+        <!-- Menu -->
+        <menuitem id="discord_menu_channel_autodelete"
+                  name="自動刪除頻道"
+                  parent="discord_menu_config"
+                  action="discord_channel_autodelete_action"
+                  sequence="15"/>
+    </data>
+</odoo>

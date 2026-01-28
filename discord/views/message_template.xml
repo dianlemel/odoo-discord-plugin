@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- List View -->
+        <record id="discord_message_template_view_list" model="ir.ui.view">
+            <field name="name">discord.message.template.list</field>
+            <field name="model">discord.message.template</field>
+            <field name="arch" type="xml">
+                <list>
+                    <field name="name"/>
+                    <field name="template_type"/>
+                    <field name="active"/>
+                </list>
+            </field>
+        </record>
+
+        <!-- Form View -->
+        <record id="discord_message_template_view_form" model="ir.ui.view">
+            <field name="name">discord.message.template.form</field>
+            <field name="model">discord.message.template</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <div class="oe_title">
+                            <label for="name"/>
+                            <h1>
+                                <field name="name" placeholder="模板名稱"/>
+                            </h1>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="template_type"/>
+                                <field name="active"/>
+                            </group>
+                        </group>
+                        <separator string="模板內容"/>
+                        <field name="body" widget="text" placeholder="輸入模板內容，支援 Jinja2 語法"/>
+                        <separator string="說明"/>
+                        <field name="description" widget="text" placeholder="模板用途說明與可用變數"/>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <!-- Action -->
+        <record id="discord_message_template_action" model="ir.actions.act_window">
+            <field name="name">訊息模板</field>
+            <field name="res_model">discord.message.template</field>
+            <field name="view_mode">list,form</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    建立訊息模板
+                </p>
+            </field>
+        </record>
+
+        <!-- Menu -->
+        <menuitem id="discord_menu_message_template"
+                  name="訊息模板"
+                  parent="discord_menu_config"
+                  action="discord_message_template_action"
+                  sequence="30"/>
+    </data>
+</odoo>

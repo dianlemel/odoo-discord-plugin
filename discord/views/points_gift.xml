@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- List View -->
+        <record id="discord_points_gift_view_list" model="ir.ui.view">
+            <field name="name">discord.points.gift.list</field>
+            <field name="model">discord.points.gift</field>
+            <field name="arch" type="xml">
+                <list create="false" delete="false">
+                    <field name="create_date" string="贈送時間"/>
+                    <field name="sender_id"/>
+                    <field name="sender_discord_id"/>
+                    <field name="receiver_id"/>
+                    <field name="receiver_discord_id"/>
+                    <field name="points"/>
+                    <field name="note"/>
+                </list>
+            </field>
+        </record>
+
+        <!-- Form View -->
+        <record id="discord_points_gift_view_form" model="ir.ui.view">
+            <field name="name">discord.points.gift.form</field>
+            <field name="model">discord.points.gift</field>
+            <field name="arch" type="xml">
+                <form create="false" delete="false">
+                    <sheet>
+                        <group>
+                            <group string="贈送者">
+                                <field name="sender_id"/>
+                                <field name="sender_discord_id"/>
+                            </group>
+                            <group string="接收者">
+                                <field name="receiver_id"/>
+                                <field name="receiver_discord_id"/>
+                            </group>
+                        </group>
+                        <group>
+                            <group>
+                                <field name="points"/>
+                                <field name="note"/>
+                            </group>
+                            <group>
+                                <field name="create_date" string="贈送時間"/>
+                            </group>
+                        </group>
+                    </sheet>
+                    <chatter/>
+                </form>
+            </field>
+        </record>
+
+        <!-- Search View -->
+        <record id="discord_points_gift_view_search" model="ir.ui.view">
+            <field name="name">discord.points.gift.search</field>
+            <field name="model">discord.points.gift</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="sender_id" string="贈送者"/>
+                    <field name="sender_discord_id" string="贈送者 Discord ID"
+                           filter_domain="[('sender_discord_id', 'ilike', self)]"/>
+                    <field name="receiver_id" string="接收者"/>
+                    <field name="receiver_discord_id" string="接收者 Discord ID"
+                           filter_domain="[('receiver_discord_id', 'ilike', self)]"/>
+                    <field name="note" string="備註" filter_domain="[('note', 'ilike', self)]"/>
+                    <field name="create_date"/>
+                    <separator/>
+                    <filter name="filter_today" string="今日" domain="[('create_date', '&gt;=', time.strftime('%%Y-%%m-%%d'))]"/>
+                    <filter name="filter_week" string="近7天" domain="[('create_date', '&gt;=', (context_today() - datetime.timedelta(days=7)).strftime('%%Y-%%m-%%d'))]"/>
+                    <filter name="filter_month" string="近30天" domain="[('create_date', '&gt;=', (context_today() - datetime.timedelta(days=30)).strftime('%%Y-%%m-%%d'))]"/>
+                    <separator/>
+                    <filter name="group_by_sender" string="依贈送者分組" context="{'group_by': 'sender_id'}"/>
+                    <filter name="group_by_receiver" string="依接收者分組" context="{'group_by': 'receiver_id'}"/>
+                    <filter name="group_by_date" string="依日期分組" context="{'group_by': 'create_date:day'}"/>
+                </search>
+            </field>
+        </record>
+
+        <!-- Action -->
+        <record id="discord_points_gift_action" model="ir.actions.act_window">
+            <field name="name">點數贈送紀錄</field>
+            <field name="res_model">discord.points.gift</field>
+            <field name="view_mode">list,form</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    目前沒有點數贈送紀錄
+                </p>
+            </field>
+        </record>
+
+        <!-- Menu -->
+        <menuitem id="discord_menu_points_gift"
+                  name="贈送紀錄"
+                  parent="discord_menu_points"
+                  action="discord_points_gift_action"
+                  sequence="20"/>
+    </data>
+</odoo>
