@@ -13,7 +13,7 @@ from odoo.modules.registry import Registry
 _logger = logging.getLogger(__name__)
 
 # 快取過期時間（秒）- 設為 60 秒，確保設定變更後最多 60 秒內生效
-CHANNEL_CACHE_TTL = 60
+CACHE_TTL = 60
 
 
 class BaseCog(commands.Cog):
@@ -26,18 +26,21 @@ class BaseCog(commands.Cog):
         self.bot = bot
         self._db_name = db_name
         self._channel_cache = {}
+        self._command_cache = {}
         self._cache_time = {}
 
-    def _is_cache_valid(self, channel_type: str) -> bool:
+    def _is_cache_valid(self, cache_key: str) -> bool:
         """檢查快取是否仍有效"""
-        if channel_type not in self._cache_time:
+        if cache_key not in self._cache_time:
             return False
-        return (time.time() - self._cache_time[channel_type]) < CHANNEL_CACHE_TTL
+        return (time.time() - self._cache_time[cache_key]) < CACHE_TTL
 
     def get_allowed_channels(self, channel_type: str) -> list | None:
         """根據類型從 Odoo 取得允許的頻道列表，失敗時返回 None"""
+        cache_key = f'channel_{channel_type}'
+
         # 檢查快取是否有效
-        if channel_type in self._channel_cache and self._is_cache_valid(channel_type):
+        if channel_type in self._channel_cache and self._is_cache_valid(cache_key):
             return self._channel_cache[channel_type]
 
         try:
@@ -49,18 +52,74 @@ class BaseCog(commands.Cog):
                 else:
                     channels = env['discord.channel.config'].get_channels_by_type(channel_type)
                     self._channel_cache[channel_type] = channels
-                self._cache_time[channel_type] = time.time()
+                self._cache_time[cache_key] = time.time()
         except Exception as e:
             _logger.error(f"取得允許頻道失敗: {e}")
             self._channel_cache[channel_type] = None
-            self._cache_time[channel_type] = time.time()
+            self._cache_time[cache_key] = time.time()
 
         return self._channel_cache[channel_type]
 
     def clear_channel_cache(self):
         """清除頻道快取（設定變更時呼叫）"""
         self._channel_cache = {}
-        self._cache_time = {}
+        # 只清除頻道相關的快取時間
+        for key in list(self._cache_time.keys()):
+            if key.startswith('channel_'):
+                del self._cache_time[key]
+
+    def clear_command_cache(self):
+        """清除指令快取（設定變更時呼叫）"""
+        self._command_cache = {}
+        # 只清除指令相關的快取時間
+        for key in list(self._cache_time.keys()):
+            if key.startswith('command_'):
+                del self._cache_time[key]
+
+    def get_command_names(self, command_type: str) -> list:
+        """根據行為類型從 Odoo 取得指令名稱列表"""
+        cache_key = f'command_{command_type}'
+
+        if command_type in self._command_cache and self._is_cache_valid(cache_key):
+            return self._command_cache[command_type]
+
+        try:
+            with self.odoo_env() as env:
+                if 'discord.command.config' not in env:
+                    _logger.warning("discord.command.config 模型不存在")
+                    self._command_cache[command_type] = []
+                else:
+                    commands = env['discord.command.config'].get_commands_by_type(command_type)
+                    self._command_cache[command_type] = commands
+                self._cache_time[cache_key] = time.time()
+        except Exception as e:
+            _logger.error(f"取得指令設定失敗: {e}")
+            self._command_cache[command_type] = []
+            self._cache_time[cache_key] = time.time()
+
+        return self._command_cache[command_type]
+
+    def parse_command(self, message_content: str, command_type: str) -> tuple:
+        """
+        解析訊息是否為指定類型的指令
+        返回: (是否匹配, 指令名稱, 參數列表)
+        """
+        if not message_content.startswith('!'):
+            return False, None, []
+
+        parts = message_content[1:].split()
+        if not parts:
+            return False, None, []
+
+        cmd_name = parts[0].lower()
+        args = parts[1:]
+
+        # 檢查是否為此類型的指令
+        allowed_commands = self.get_command_names(command_type)
+        if cmd_name in [c.lower() for c in allowed_commands]:
+            return True, cmd_name, args
+
+        return False, None, []
 
     async def cog_check(self, ctx):
         """所有指令執行前的檢查 - 驗證頻道"""

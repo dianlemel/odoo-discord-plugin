@@ -68,7 +68,7 @@ class DiscordPayment(http.Controller):
         total_amount = points * price_per_point
 
         # 建立訂單
-        order = request.env['discord.payment.order'].create_order(
+        order = request.env['discord.points.order'].create_order(
             discord_id=discord_id,
             points=points,
             amount=total_amount,
@@ -143,7 +143,7 @@ class DiscordPayment(http.Controller):
 
         if rtn_code == '1':
             # 付款成功
-            order = request.env['discord.payment.order'].sudo().search([
+            order = request.env['discord.points.order'].sudo().search([
                 ('name', '=', merchant_trade_no)
             ], limit=1)
 
@@ -173,7 +173,7 @@ class DiscordPayment(http.Controller):
         total_amount = points * price_per_point
 
         # 建立訂單
-        order = request.env['discord.payment.order'].create_order(
+        order = request.env['discord.points.order'].create_order(
             discord_id=discord_id,
             points=points,
             amount=total_amount,
@@ -248,7 +248,7 @@ class DiscordPayment(http.Controller):
 
         if rtn_code == '1':
             # 付款成功
-            order = request.env['discord.payment.order'].sudo().search([
+            order = request.env['discord.points.order'].sudo().search([
                 ('name', '=', merchant_trade_no)
             ], limit=1)
 
@@ -265,7 +265,7 @@ class DiscordPayment(http.Controller):
         if not order:
             return request.not_found()
 
-        payment_order = request.env['discord.payment.order'].sudo().search([
+        payment_order = request.env['discord.points.order'].sudo().search([
             ('name', '=', order)
         ], limit=1)
 

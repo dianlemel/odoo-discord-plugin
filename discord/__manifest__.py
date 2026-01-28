@@ -7,12 +7,14 @@
     'description': "Discord 機器人",
     'data': [
         'security/ir.model.access.csv',
+        'data/discord_command_data.xml',
         'views/res_config.xml',
         'views/res_partner.xml',
         'views/discord_channel.xml',
+        'views/discord_command.xml',
         'views/transform_templates.xml',
         'views/payment_templates.xml',
-        'views/payment_order.xml',
+        'views/points_order.xml',
     ],
     "external_dependencies": {
         "python": ['discord'],

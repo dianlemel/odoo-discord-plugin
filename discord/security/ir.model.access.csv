@@ -1,4 +1,5 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_discord_channel_config,discord.channel.config,model_discord_channel_config,base.group_system,1,1,1,1
-access_discord_payment_order,discord.payment.order,model_discord_payment_order,base.group_system,1,1,1,1
-access_discord_payment_order_public,discord.payment.order.public,model_discord_payment_order,base.group_public,1,0,1,0
+access_discord_command_config,discord.command.config,model_discord_command_config,base.group_system,1,1,1,1
+access_discord_points_order,discord.points.order,model_discord_points_order,base.group_system,1,1,1,1
+access_discord_points_order_public,discord.points.order.public,model_discord_points_order,base.group_public,1,0,1,0

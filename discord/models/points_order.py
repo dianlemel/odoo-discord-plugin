@@ -2,9 +2,9 @@ import time
 from odoo import fields, models, api
 
 
-class DiscordPaymentOrder(models.Model):
-    _name = 'discord.payment.order'
-    _description = 'Discord 點數付款訂單'
+class DiscordPointsOrder(models.Model):
+    _name = 'discord.points.order'
+    _description = 'Discord 點數購買訂單'
     _inherit = ['mail.thread', 'mail.activity.mixin']
     _order = 'create_date desc'
 
@@ -28,7 +28,7 @@ class DiscordPaymentOrder(models.Model):
 
     @api.model
     def create_order(self, discord_id: str, points: int, amount: int, payment_method: str):
-        """建立付款訂單"""
+        """建立點數購買訂單"""
         partner = self.env['res.partner'].sudo().search([
             ('discord_id', '=', discord_id)
         ], limit=1)
@@ -37,7 +37,7 @@ class DiscordPaymentOrder(models.Model):
             return None
 
         # 產生唯一訂單編號 (綠界限制最長20字元)
-        order_no = f"DC{int(time.time())}"
+        order_no = f"PT{int(time.time())}"
 
         order = self.sudo().create({
             'name': order_no,

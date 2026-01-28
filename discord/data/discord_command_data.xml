@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- 預設綁定指令 -->
+        <record id="command_bind" model="discord.command.config">
+            <field name="command_name">bind</field>
+            <field name="command_type">bind</field>
+            <field name="description">預設綁定指令</field>
+        </record>
+
+        <!-- 預設點數查詢指令 -->
+        <record id="command_points" model="discord.command.config">
+            <field name="command_name">points</field>
+            <field name="command_type">points</field>
+            <field name="description">預設點數查詢指令</field>
+        </record>
+
+        <!-- 預設購買指令 -->
+        <record id="command_buy" model="discord.command.config">
+            <field name="command_name">buy</field>
+            <field name="command_type">buy</field>
+            <field name="description">預設購買指令</field>
+        </record>
+    </data>
+</odoo>
