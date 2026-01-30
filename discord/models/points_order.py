@@ -93,7 +93,7 @@ class DiscordPointsOrder(models.Model):
                 return
 
             # 渲染通知訊息
-            notification = self.env['discord.message.template'].render_by_type(
+            result = self.env['discord.message.template'].render_message_by_type(
                 'payment_notification',
                 {
                     'order_no': self.name,
@@ -104,23 +104,25 @@ class DiscordPointsOrder(models.Model):
                 }
             )
 
-            if not notification:
+            if not result:
                 # 如果沒有模板，使用預設訊息
-                notification = (
-                    f"🎉 付款成功！\n\n"
-                    f"訂單編號：{self.name}\n"
-                    f"購買點數：{self.points} 點\n"
-                    f"付款金額：NT$ {self.amount}\n\n"
-                    f"💰 點數變化：\n"
-                    f"　變更前：{points_before} 點\n"
-                    f"　變更後：{points_after} 點\n\n"
-                    f"感謝您的購買！"
-                )
+                result = {
+                    'content': (
+                        f"🎉 付款成功！\n\n"
+                        f"訂單編號：{self.name}\n"
+                        f"購買點數：{self.points} 點\n"
+                        f"付款金額：NT$ {self.amount}\n\n"
+                        f"💰 點數變化：\n"
+                        f"　變更前：{points_before} 點\n"
+                        f"　變更後：{points_after} 點\n\n"
+                        f"感謝您的購買！"
+                    )
+                }
 
             # 排程 Discord 通知任務
             discord_bot_service.schedule_payment_notification(
                 discord_id=self.discord_id,
-                message=notification,
+                send_kwargs=result,
                 payment_message_id=self.payment_message_id,
                 payment_channel_id=self.payment_channel_id,
             )

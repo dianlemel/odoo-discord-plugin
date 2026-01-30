@@ -176,14 +176,14 @@ class DiscordBotService:
         """
         return self._pending_payment_messages.pop(discord_id, None)
 
-    def schedule_payment_notification(self, discord_id: str, message: str,
+    def schedule_payment_notification(self, discord_id: str, send_kwargs: dict,
                                        payment_message_id: str = None,
                                        payment_channel_id: str = None):
         """
         排程付款成功通知
 
         :param discord_id: Discord 用戶 ID
-        :param message: 通知訊息內容
+        :param send_kwargs: 傳給 user.send() 的 kwargs dict
         :param payment_message_id: 原付款連結訊息 ID（用於刪除）
         :param payment_channel_id: 原付款連結頻道 ID（用於刪除）
         """
@@ -193,19 +193,19 @@ class DiscordBotService:
 
         asyncio.run_coroutine_threadsafe(
             self._send_payment_notification(
-                discord_id, message, payment_message_id, payment_channel_id
+                discord_id, send_kwargs, payment_message_id, payment_channel_id
             ),
             self._loop
         )
 
-    async def _send_payment_notification(self, discord_id: str, message: str,
+    async def _send_payment_notification(self, discord_id: str, send_kwargs: dict,
                                           payment_message_id: str = None,
                                           payment_channel_id: str = None):
         """
         發送付款成功通知並刪除原付款連結訊息
 
         :param discord_id: Discord 用戶 ID
-        :param message: 通知訊息內容
+        :param send_kwargs: 傳給 user.send() 的 kwargs dict
         :param payment_message_id: 原付款連結訊息 ID（用於刪除）
         :param payment_channel_id: 原付款連結頻道 ID（用於刪除）
         """
@@ -217,7 +217,7 @@ class DiscordBotService:
                 return
 
             # 發送付款成功通知
-            await user.send(message)
+            await user.send(**send_kwargs)
             _logger.info(f"已發送付款通知給用戶 {discord_id}")
 
             # 刪除原付款連結訊息

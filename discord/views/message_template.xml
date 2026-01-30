@@ -33,8 +33,18 @@
                                 <field name="active"/>
                             </group>
                         </group>
+                        <group>
+                            <field name="use_embed"/>
+                        </group>
                         <separator string="模板內容"/>
                         <field name="body" widget="text" placeholder="輸入模板內容，支援 Jinja2 語法"/>
+                        <group invisible="not use_embed" string="Embed 設定">
+                            <field name="embed_title"/>
+                            <field name="embed_color" placeholder="#FF5733"/>
+                            <field name="embed_image_url"/>
+                            <field name="embed_thumbnail_url"/>
+                            <field name="embed_footer"/>
+                        </group>
                         <separator string="說明"/>
                         <field name="description" widget="text" placeholder="模板用途說明與可用變數"/>
                     </sheet>

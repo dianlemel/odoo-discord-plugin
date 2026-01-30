@@ -80,7 +80,7 @@ class GiftCog(BaseCog):
                     # 取得贈送者最新點數
                     sender = self.get_partner_by_discord_id(env, sender_discord_id)
 
-                    success_msg = env['discord.message.template'].render_by_type(
+                    result = env['discord.message.template'].render_message_by_type(
                         'gift_success',
                         {
                             'points': points,
@@ -88,8 +88,8 @@ class GiftCog(BaseCog):
                             'remaining_points': sender.points,
                         }
                     )
-                    if success_msg:
-                        await message.author.send(success_msg)
+                    if result:
+                        await message.author.send(**result)
 
                     # 發送公告
                     await self._send_announcement(
@@ -121,7 +121,7 @@ class GiftCog(BaseCog):
                 return
 
             # 使用模板渲染公告
-            announcement = env['discord.message.template'].render_by_type(
+            result = env['discord.message.template'].render_message_by_type(
                 'gift_announcement',
                 {
                     'sender': f"<@{sender_discord_id}>",
@@ -131,8 +131,8 @@ class GiftCog(BaseCog):
                 }
             )
 
-            if announcement:
-                await channel.send(announcement)
+            if result:
+                await channel.send(**result)
 
         except Exception as e:
             _logger.error(f"發送贈送公告失敗: {e}")

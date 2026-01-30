@@ -5,23 +5,33 @@
         <record id="template_bind_already_bound" model="discord.message.template">
             <field name="name">已綁定通知</field>
             <field name="template_type">bind_already_bound</field>
-            <field name="body">你已經綁定過了！目前有 {{ points }} 點</field>
+            <field name="body">你已經綁定過了！目前有 **{{ points }}** 點</field>
             <field name="description">使用者重複綁定時的私訊通知
 
 可用變數：
 - {{ points }} - 目前點數
 
-支援 Jinja2 語法</field>
+支援 Jinja2 語法
+body 在 Embed 模式下作為 description 顯示</field>
+            <field name="use_embed" eval="True"/>
+            <field name="embed_title">已經綁定</field>
+            <field name="embed_color">#FFA500</field>
+            <field name="embed_footer">如有問題請聯繫管理員</field>
         </record>
 
         <!-- 綁定成功通知模板 -->
         <record id="template_bind_success" model="discord.message.template">
             <field name="name">綁定成功通知</field>
             <field name="template_type">bind_success</field>
-            <field name="body">綁定成功！</field>
+            <field name="body">綁定成功！歡迎加入，祝你使用愉快！</field>
             <field name="description">綁定成功後的私訊通知
 
-支援 Jinja2 語法</field>
+支援 Jinja2 語法
+body 在 Embed 模式下作為 description 顯示</field>
+            <field name="use_embed" eval="True"/>
+            <field name="embed_title">綁定成功</field>
+            <field name="embed_color">#00CC66</field>
+            <field name="embed_footer">輸入指令查詢你的點數</field>
         </record>
 
         <!-- 購買確認模板 -->
@@ -29,20 +39,27 @@
             <field name="name">購買確認</field>
             <field name="template_type">buy_confirm</field>
             <field name="body">你要購買 **{{ points }}** 點
-請點擊下方按鈕完成付款：</field>
+請點擊下方按鈕完成付款</field>
             <field name="description">購買點數時私訊給使用者的確認訊息
 
 可用變數：
 - {{ points }} - 購買點數
 
-支援 Jinja2 語法</field>
+支援 Jinja2 語法
+body 在 Embed 模式下作為 description 顯示</field>
+            <field name="use_embed" eval="True"/>
+            <field name="embed_title">購買確認</field>
+            <field name="embed_color">#3498DB</field>
+            <field name="embed_footer">付款完成後將自動加點</field>
         </record>
 
         <!-- 贈送公告模板 -->
         <record id="template_gift_announcement" model="discord.message.template">
             <field name="name">贈送公告</field>
             <field name="template_type">gift_announcement</field>
-            <field name="body">@everyone {{ sender }} 贈送給 {{ receiver }} {{ points }} 點！{% if note %} ({{ note }}){% endif %}</field>
+            <field name="body">{{ sender }} 贈送給 {{ receiver }} **{{ points }}** 點！{% if note %}
+
+備註：{{ note }}{% endif %}</field>
             <field name="description">贈送點數時發送的公告訊息
 
 可用變數：
@@ -53,15 +70,19 @@
 
 支援 Jinja2 語法，例如：
 - 條件判斷: {% if note %}有備註{% endif %}
-- 預設值: {{ note or '無備註' }}</field>
+- 預設值: {{ note or '無備註' }}
+body 在 Embed 模式下作為 description 顯示</field>
+            <field name="use_embed" eval="True"/>
+            <field name="embed_title">點數贈送</field>
+            <field name="embed_color">#FF69B4</field>
         </record>
 
         <!-- 贈送成功通知模板 -->
         <record id="template_gift_success" model="discord.message.template">
             <field name="name">贈送成功通知</field>
             <field name="template_type">gift_success</field>
-            <field name="body">成功贈送 {{ points }} 點給 {{ receiver }}！
-你目前剩餘 {{ remaining_points }} 點</field>
+            <field name="body">成功贈送 **{{ points }}** 點給 {{ receiver }}！
+你目前剩餘 **{{ remaining_points }}** 點</field>
             <field name="description">贈送成功後私訊給贈送者的通知
 
 可用變數：
@@ -69,24 +90,24 @@
 - {{ receiver }} - 接收者 (@ mention 格式)
 - {{ remaining_points }} - 贈送者剩餘點數
 
-支援 Jinja2 語法</field>
+支援 Jinja2 語法
+body 在 Embed 模式下作為 description 顯示</field>
+            <field name="use_embed" eval="True"/>
+            <field name="embed_title">贈送成功</field>
+            <field name="embed_color">#00CC66</field>
         </record>
 
         <!-- 付款成功通知模板 -->
         <record id="template_payment_notification" model="discord.message.template">
             <field name="name">付款成功通知</field>
             <field name="template_type">payment_notification</field>
-            <field name="body">🎉 付款成功！
-
-訂單編號：{{ order_no }}
+            <field name="body">訂單編號：{{ order_no }}
 購買點數：{{ points }} 點
 付款金額：NT$ {{ amount }}
 
-💰 點數變化：
+點數變化：
 　變更前：{{ points_before }} 點
-　變更後：{{ points_after }} 點
-
-感謝您的購買！</field>
+　變更後：**{{ points_after }}** 點</field>
             <field name="description">付款成功後發送給用戶的私訊通知
 
 可用變數：
@@ -96,19 +117,29 @@
 - {{ points_before }} - 加點前的點數
 - {{ points_after }} - 加點後的點數
 
-支援 Jinja2 語法</field>
+支援 Jinja2 語法
+body 在 Embed 模式下作為 description 顯示</field>
+            <field name="use_embed" eval="True"/>
+            <field name="embed_title">付款成功</field>
+            <field name="embed_color">#FFD700</field>
+            <field name="embed_footer">感謝您的購買！</field>
         </record>
+
         <!-- 點數查詢模板 -->
         <record id="template_points_query" model="discord.message.template">
             <field name="name">點數查詢</field>
             <field name="template_type">points_query</field>
-            <field name="body">你目前有 {{ points }} 點</field>
+            <field name="body">你目前有 **{{ points }}** 點</field>
             <field name="description">查詢點數時的私訊回覆
 
 可用變數：
 - {{ points }} - 目前點數
 
-支援 Jinja2 語法</field>
+支援 Jinja2 語法
+body 在 Embed 模式下作為 description 顯示</field>
+            <field name="use_embed" eval="True"/>
+            <field name="embed_title">點數查詢</field>
+            <field name="embed_color">#9B59B6</field>
         </record>
     </data>
 </odoo>
