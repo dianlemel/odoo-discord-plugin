@@ -3,7 +3,7 @@
     'version': '19.0.0.0.7',
     'category': 'Technical',
     'author': "HE,XUE-DIAN",
-    'depends': ['base', 'contacts', 'mail'],
+    'depends': ['base', 'contacts', 'mail', 'auth_signup'],
     'description': "Discord 機器人",
     'data': [
         'security/ir.model.access.csv',

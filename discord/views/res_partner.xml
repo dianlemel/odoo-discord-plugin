@@ -53,5 +53,8 @@
                 </xpath>
             </field>
         </record>
+        <record id="contacts.action_contacts" model="ir.actions.act_window">
+            <field name="context">{'default_is_company': True, 'search_default_type_person': 1}</field>
+        </record>
     </data>
 </odoo>
