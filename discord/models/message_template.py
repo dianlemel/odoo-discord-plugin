@@ -43,6 +43,8 @@ class DiscordMessageTemplate(models.Model):
             ('gift_success', '贈送成功通知'),
             ('payment_notification', '付款成功通知'),
             ('points_query', '點數查詢'),
+            ('announce', '群發通知'),
+            ('announce_result', '群發結果通知'),
         ]
 
     _sql_constraints = [

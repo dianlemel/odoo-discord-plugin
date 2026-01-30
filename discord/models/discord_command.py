@@ -36,6 +36,7 @@ class DiscordCommandConfig(models.Model):
             ('points', '查詢點數'),
             ('buy', '購買點數'),
             ('gift', '贈送點數'),
+            ('announce', '群發通知'),
         ]
 
     @api.depends('command_name', 'command_type', 'description')

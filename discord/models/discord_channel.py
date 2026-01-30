@@ -35,6 +35,7 @@ class DiscordChannelConfig(models.Model):
             ('points', '點數查詢'),
             ('buy', '購買點數'),
             ('gift', '贈送點數'),
+            ('announce', '群發通知'),
         ]
 
     @api.depends('channel_id', 'channel_type', 'name')

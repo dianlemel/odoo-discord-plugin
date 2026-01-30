@@ -27,6 +27,11 @@
                                 <field name="gift_announcement_channel" placeholder="例如: 1234567890"/>
                             </setting>
                         </block>
+                        <block title="群發通知" name="announce_block">
+                            <setting string="允許身分組 ID" help="允許使用 announce 指令的 Discord Role ID，多個以逗號分隔">
+                                <field name="discord_announce_allowed_roles" placeholder="例如: 123456789,987654321"/>
+                            </setting>
+                        </block>
                         <block title="綠界科技" name="ecpay_block">
                             <setting string="測試模式">
                                 <field name="ecpay_is_debug"/>

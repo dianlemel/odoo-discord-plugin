@@ -28,5 +28,12 @@
             <field name="command_type">gift</field>
             <field name="description">預設贈送指令</field>
         </record>
+
+        <!-- 預設群發通知指令 -->
+        <record id="command_announce" model="discord.command.config">
+            <field name="command_name">announce</field>
+            <field name="command_type">announce</field>
+            <field name="description">預設群發通知指令</field>
+        </record>
     </data>
 </odoo>

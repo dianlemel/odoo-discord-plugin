@@ -29,6 +29,12 @@ class ResConfigSettings(models.TransientModel):
     # 贈送公告設定
     gift_announcement_channel = fields.Char('公告頻道 ID', help='贈送點數時發送公告的頻道 ID')
 
+    # 群發通知設定
+    discord_announce_allowed_roles = fields.Char(
+        '群發通知允許身分組',
+        help='允許使用 announce 指令的 Discord Role ID，多個以逗號分隔',
+    )
+
     def set_values(self):
         super(ResConfigSettings, self).set_values()
         ir_config_parameter = self.env['ir.config_parameter'].sudo()
@@ -47,6 +53,8 @@ class ResConfigSettings(models.TransientModel):
         ir_config_parameter.set_param('discord.point_price', self.point_price or 10)
         # 贈送公告設定
         ir_config_parameter.set_param('discord.gift_announcement_channel', self.gift_announcement_channel or '')
+        # 群發通知設定
+        ir_config_parameter.set_param('discord.announce_allowed_roles', self.discord_announce_allowed_roles or '')
 
     @api.model
     def get_ecpay_sdk(self):
@@ -141,6 +149,11 @@ class ResConfigSettings(models.TransientModel):
         gift_announcement_channel = ir_config_parameter.get_param('discord.gift_announcement_channel')
         if gift_announcement_channel:
             res.update(gift_announcement_channel=gift_announcement_channel)
+
+        # 群發通知設定
+        announce_allowed_roles = ir_config_parameter.get_param('discord.announce_allowed_roles')
+        if announce_allowed_roles:
+            res.update(discord_announce_allowed_roles=announce_allowed_roles)
 
         return res
 
