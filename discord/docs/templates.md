@@ -2,6 +2,8 @@
 
 訊息模板支援 Jinja2 語法與 Discord Embed，可在 Odoo 後台設定。
 
+每種類型可以建立多個模板，若同類型有多個啟用的模板，系統會隨機選擇一個使用。
+
 ## 模板類型
 
 | 類型 | 說明 | 可用變數 |
@@ -13,13 +15,16 @@
 | gift_success | 贈送成功通知 | points, receiver, remaining_points |
 | payment_notification | 付款成功通知 | order_no, points, amount, points_before, points_after |
 | points_query | 點數查詢 | points |
+| announce | 群發通知 | message, role_name, sender, guild_name |
+| announce_result | 群發結果通知 | role_name, total, success, failed |
 
 ## 方法
 
 | 方法 | 回傳 | 說明 |
 |------|------|------|
-| `render(values)` | `str` | 渲染 body 為純文字（向下相容） |
-| `render_by_type(type, values)` | `str \| None` | 根據類型渲染純文字（向下相容） |
+| `get_template(type)` | `recordset` | 取得該類型所有啟用模板，隨機回傳一筆 |
+| `render(values)` | `str` | 渲染 body 為純文字 |
+| `render_by_type(type, values)` | `str \| None` | 根據類型渲染純文字 |
 | `render_message(values)` | `dict` | 渲染為 `send()` kwargs dict |
 | `render_message_by_type(type, values)` | `dict \| None` | 根據類型渲染為 `send()` kwargs dict |
 

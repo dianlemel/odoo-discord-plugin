@@ -74,7 +74,7 @@
 | 欄位 | 類型 | 說明 |
 |------|------|------|
 | name | Char | 模板名稱 |
-| template_type | Selection | 模板類型（唯一） |
+| template_type | Selection | 模板類型（同類型可建立多個，啟用的模板會隨機選用） |
 | body | Text | 模板內容 (Jinja2)，純文字模式為訊息內容，Embed 模式為 description |
 | description | Text | 說明與可用變數（唯讀） |
 | active | Boolean | 是否啟用 |

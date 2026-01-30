@@ -1,10 +1,10 @@
 import logging
+import random
 from jinja2 import Template
 
 import discord as discord_lib
 
 from odoo import fields, models, api
-from odoo.exceptions import ValidationError
 
 _logger = logging.getLogger(__name__)
 
@@ -46,23 +46,6 @@ class DiscordMessageTemplate(models.Model):
             ('announce', '群發通知'),
             ('announce_result', '群發結果通知'),
         ]
-
-    _sql_constraints = [
-        ('type_unique', 'UNIQUE(template_type)',
-         '每種類型只能有一個模板！'),
-    ]
-
-    @api.constrains('template_type')
-    def _check_unique_template_type(self):
-        for record in self:
-            duplicate = self.sudo().search([
-                ('template_type', '=', record.template_type),
-                ('id', '!=', record.id),
-            ], limit=1)
-            if duplicate:
-                raise ValidationError(
-                    f"類型「{record.template_type}」已有模板「{duplicate.name}」，每種類型只能有一個模板！"
-                )
 
     def _render_jinja(self, template_str: str, values: dict) -> str:
         """渲染單一 Jinja2 字串"""
@@ -125,11 +108,14 @@ class DiscordMessageTemplate(models.Model):
 
     @api.model
     def get_template(self, template_type: str):
-        """根據類型取得模板"""
-        return self.sudo().search([
+        """根據類型取得模板，若有多個啟用模板則隨機選擇一個"""
+        templates = self.sudo().search([
             ('template_type', '=', template_type),
             ('active', '=', True),
-        ], limit=1)
+        ])
+        if not templates:
+            return self.browse()
+        return random.choice(templates)
 
     @api.model
     def render_by_type(self, template_type: str, values: dict) -> str | None:
