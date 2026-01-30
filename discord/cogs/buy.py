@@ -78,9 +78,10 @@ class BuyCog(BaseCog):
                 return
 
             # 私訊給使用者（使用按鈕）
-            dm_message = await message.author.send(
+            dm_message = await self.send_dm(
+                message.author,
                 **result,
-                view=PaymentView(payment_url, amount)
+                view=PaymentView(payment_url, amount),
             )
 
             # 暫存訊息資訊，用於付款成功後刪除

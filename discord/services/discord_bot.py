@@ -11,6 +11,7 @@ import discord
 from discord.ext import commands
 
 from ..cogs import COGS
+from .dm_queue import DMQueue
 
 _logger = logging.getLogger(__name__)
 
@@ -52,6 +53,9 @@ class DiscordBotService:
         @self._bot.event
         async def on_ready():
             _logger.info(f"Discord Bot 已上線: {self._bot.user}")
+            # 初始化 DM 佇列
+            self._bot.dm_queue = DMQueue()
+            self._bot.dm_queue.start()
             # 載入所有 Cogs
             await self._load_cogs()
 
@@ -114,6 +118,9 @@ class DiscordBotService:
             return
 
         if self._bot and self._loop:
+            # 停止 DM 佇列
+            if hasattr(self._bot, 'dm_queue'):
+                self._bot.dm_queue.stop()
             asyncio.run_coroutine_threadsafe(self._bot.close(), self._loop)
 
         self._running = False
@@ -216,8 +223,9 @@ class DiscordBotService:
                 _logger.warning(f"找不到 Discord 用戶: {discord_id}")
                 return
 
-            # 發送付款成功通知
-            await user.send(**send_kwargs)
+            # 透過 DM 佇列發送付款成功通知
+            future = await self._bot.dm_queue.enqueue(user, **send_kwargs)
+            await future
             _logger.info(f"已發送付款通知給用戶 {discord_id}")
 
             # 刪除原付款連結訊息

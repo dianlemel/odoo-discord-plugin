@@ -67,7 +67,7 @@ class BindCog(BaseCog):
                         'bind_already_bound', {'points': partner.points}
                     )
                     if result:
-                        await message.author.send(**result)
+                        await self.send_dm(message.author, **result)
                 else:
                     vals = {
                         'name': discord_username,
@@ -82,6 +82,6 @@ class BindCog(BaseCog):
                         'bind_success', {}
                     )
                     if result:
-                        await message.author.send(**result)
+                        await self.send_dm(message.author, **result)
         except Exception as e:
             _logger.error(f"綁定帳號失敗: {e}")

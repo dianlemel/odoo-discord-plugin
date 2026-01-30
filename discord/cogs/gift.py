@@ -89,7 +89,7 @@ class GiftCog(BaseCog):
                         }
                     )
                     if result:
-                        await message.author.send(**result)
+                        await self.send_dm(message.author, **result)
 
                     # 發送公告
                     await self._send_announcement(
@@ -101,7 +101,7 @@ class GiftCog(BaseCog):
                     )
                 else:
                     # 贈送失敗，私訊錯誤訊息
-                    await message.author.send(msg)
+                    await self.send_dm(message.author, content=msg)
 
         except Exception as e:
             _logger.error(f"贈送點數失敗: {e}")

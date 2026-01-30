@@ -5,6 +5,7 @@ import re
 from discord.ext import commands
 
 from .base import BaseCog
+from ..services.dm_queue import DMPriority
 
 _logger = logging.getLogger(__name__)
 
@@ -97,7 +98,10 @@ class AnnounceCog(BaseCog):
 
         for member in members:
             try:
-                await member.send(**announce_result)
+                future = await self.bot.dm_queue.enqueue(
+                    member, priority=DMPriority.LOW, **announce_result
+                )
+                await future
                 success += 1
             except Exception as e:
                 _logger.error(f"發送群發通知給 {member} 失敗: {e}")
@@ -116,7 +120,7 @@ class AnnounceCog(BaseCog):
                     }
                 )
             if result:
-                await message.author.send(**result)
+                await self.send_dm(message.author, **result)
         except Exception as e:
             _logger.error(f"發送群發結果通知失敗: {e}")
 

@@ -46,6 +46,6 @@ class PointsCog(BaseCog):
                         'points_query', {'points': partner.points}
                     )
                     if result:
-                        await message.author.send(**result)
+                        await self.send_dm(message.author, **result)
         except Exception as e:
             _logger.error(f"查詢點數失敗: {e}")

@@ -156,6 +156,14 @@ class BaseCog(commands.Cog):
         finally:
             cr.close()
 
+    async def send_dm(self, recipient, priority=None, **kwargs):
+        """透過集中式 DM 佇列發送私訊"""
+        from ..services.dm_queue import DMPriority
+        if priority is None:
+            priority = DMPriority.NORMAL
+        future = await self.bot.dm_queue.enqueue(recipient, priority=priority, **kwargs)
+        return await future
+
     def get_partner_by_discord_id(self, env, discord_user_id: str):
         """透過 Discord User ID 取得關聯的 Partner"""
         return env['res.partner'].sudo().search([
