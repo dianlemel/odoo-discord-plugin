@@ -18,7 +18,7 @@ discord/
 │
 ├── models/                       # Odoo 資料模型
 │   ├── res_config.py            # 系統設定 (Bot Token, 金流設定, 公告頻道)
-│   ├── res_partner.py           # 用戶擴充 (discord_id, points)
+│   ├── res_partner.py           # 用戶擴充 (discord_id, points, 購買/贈送 smart buttons)
 │   ├── discord_bot_manager.py
 │   ├── discord_channel.py       # 頻道權限設定
 │   ├── discord_command.py       # 指令配置

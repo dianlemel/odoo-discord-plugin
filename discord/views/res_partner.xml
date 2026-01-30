@@ -5,9 +5,51 @@
             <field name="model">res.partner</field>
             <field name="inherit_id" ref="base.view_partner_form"/>
             <field name="arch" type="xml">
+                <div name="button_box" position="inside">
+                    <button name="action_view_points_orders"
+                            type="object"
+                            class="oe_stat_button"
+                            icon="fa-shopping-cart">
+                        <field name="points_order_count" string="購買訂單" widget="statinfo"/>
+                    </button>
+                    <button name="action_view_points_gifts"
+                            type="object"
+                            class="oe_stat_button"
+                            icon="fa-gift">
+                        <field name="points_gift_count" string="贈送紀錄" widget="statinfo"/>
+                    </button>
+                </div>
                 <xpath expr="//sheet/group/group/div[hasclass('o_address_format')]" position="after">
                     <field name="discord_id"/>
                     <field name="points"/>
+                </xpath>
+            </field>
+        </record>
+        <record id="view_partner_tree_inherit" model="ir.ui.view">
+            <field name="name">res.partner.tree.inherit</field>
+            <field name="model">res.partner</field>
+            <field name="inherit_id" ref="base.view_partner_tree"/>
+            <field name="arch" type="xml">
+                <field name="country_id" position="after">
+                    <field name="discord_id" optional="show"/>
+                    <field name="points" optional="show"/>
+                </field>
+            </field>
+        </record>
+
+        <record id="view_partner_kanban_inherit" model="ir.ui.view">
+            <field name="name">res.partner.kanban.inherit</field>
+            <field name="model">res.partner</field>
+            <field name="inherit_id" ref="base.res_partner_kanban_view"/>
+            <field name="arch" type="xml">
+                <field name="active" position="after">
+                    <field name="points"/>
+                </field>
+                <xpath expr="//main/div[.//field[@name='country_id']]" position="after">
+                    <div t-if="record.points.raw_value">
+                        <i class="fa fa-fw me-1 fa-star text-primary" title="Points"/>
+                        <field name="points"/>
+                    </div>
                 </xpath>
             </field>
         </record>

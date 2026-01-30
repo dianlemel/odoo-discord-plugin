@@ -7,6 +7,8 @@
 |------|------|------|
 | discord_id | Char | Discord User ID (唯一) |
 | points | Integer | 點數餘額 |
+| points_order_count | Integer (compute) | 該聯絡人的購買訂單數，form 上方 smart button 顯示 |
+| points_gift_count | Integer (compute) | 該聯絡人的贈送紀錄數（含贈送與接收），form 上方 smart button 顯示 |
 
 ## discord.points.order
 點數購買訂單。

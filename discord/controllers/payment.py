@@ -34,7 +34,7 @@ class DiscordPayment(http.Controller):
         except Exception as e:
             _logger.error(f"附加付款連結訊息資訊失敗: {e}")
 
-    @http.route('/discord/pay', auth='public', type='http', website=True)
+    @http.route('/discord/pay', auth='public', type='http')
     def payment_page(self, discord_id=None, points=None, **kwargs):
         """付款頁面 - 顯示付款選項"""
         if not discord_id or not points:
@@ -71,7 +71,7 @@ class DiscordPayment(http.Controller):
             'total_amount': total_amount,
         })
 
-    @http.route('/discord/pay/ecpay', auth='public', type='http', website=True)
+    @http.route('/discord/pay/ecpay', auth='public', type='http')
     def ecpay_checkout(self, discord_id=None, points=None, **kwargs):
         """綠界付款 - 產生付款表單並自動提交"""
         if not discord_id or not points:
@@ -179,7 +179,7 @@ class DiscordPayment(http.Controller):
 
         return '1|OK'
 
-    @http.route('/discord/pay/opay', auth='public', type='http', website=True)
+    @http.route('/discord/pay/opay', auth='public', type='http')
     def opay_checkout(self, discord_id=None, points=None, **kwargs):
         """歐富寶付款 - 產生付款表單並自動提交"""
         if not discord_id or not points:
@@ -287,7 +287,7 @@ class DiscordPayment(http.Controller):
 
         return '1|OK'
 
-    @http.route('/discord/pay/result', auth='public', type='http', website=True,
+    @http.route('/discord/pay/result', auth='public', type='http',
                 methods=['GET', 'POST'], csrf=False)
     def payment_result(self, order=None, **kwargs):
         """付款結果頁面"""
