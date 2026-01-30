@@ -46,7 +46,7 @@
                             <field name="embed_footer"/>
                         </group>
                         <separator string="說明"/>
-                        <field name="description" widget="text" placeholder="模板用途說明與可用變數"/>
+                        <field name="description" widget="text" readonly="1"/>
                     </sheet>
                 </form>
             </field>
