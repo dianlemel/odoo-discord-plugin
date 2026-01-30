@@ -1,6 +1,43 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data noupdate="1">
+        <!-- 已綁定通知模板 -->
+        <record id="template_bind_already_bound" model="discord.message.template">
+            <field name="name">已綁定通知</field>
+            <field name="template_type">bind_already_bound</field>
+            <field name="body">你已經綁定過了！目前有 {{ points }} 點</field>
+            <field name="description">使用者重複綁定時的私訊通知
+
+可用變數：
+- {{ points }} - 目前點數
+
+支援 Jinja2 語法</field>
+        </record>
+
+        <!-- 綁定成功通知模板 -->
+        <record id="template_bind_success" model="discord.message.template">
+            <field name="name">綁定成功通知</field>
+            <field name="template_type">bind_success</field>
+            <field name="body">綁定成功！</field>
+            <field name="description">綁定成功後的私訊通知
+
+支援 Jinja2 語法</field>
+        </record>
+
+        <!-- 購買確認模板 -->
+        <record id="template_buy_confirm" model="discord.message.template">
+            <field name="name">購買確認</field>
+            <field name="template_type">buy_confirm</field>
+            <field name="body">你要購買 **{{ points }}** 點
+請點擊下方按鈕完成付款：</field>
+            <field name="description">購買點數時私訊給使用者的確認訊息
+
+可用變數：
+- {{ points }} - 購買點數
+
+支援 Jinja2 語法</field>
+        </record>
+
         <!-- 贈送公告模板 -->
         <record id="template_gift_announcement" model="discord.message.template">
             <field name="name">贈送公告</field>
@@ -17,6 +54,22 @@
 支援 Jinja2 語法，例如：
 - 條件判斷: {% if note %}有備註{% endif %}
 - 預設值: {{ note or '無備註' }}</field>
+        </record>
+
+        <!-- 贈送成功通知模板 -->
+        <record id="template_gift_success" model="discord.message.template">
+            <field name="name">贈送成功通知</field>
+            <field name="template_type">gift_success</field>
+            <field name="body">成功贈送 {{ points }} 點給 {{ receiver }}！
+你目前剩餘 {{ remaining_points }} 點</field>
+            <field name="description">贈送成功後私訊給贈送者的通知
+
+可用變數：
+- {{ points }} - 贈送點數
+- {{ receiver }} - 接收者 (@ mention 格式)
+- {{ remaining_points }} - 贈送者剩餘點數
+
+支援 Jinja2 語法</field>
         </record>
 
         <!-- 付款成功通知模板 -->
@@ -42,6 +95,18 @@
 - {{ amount }} - 付款金額
 - {{ points_before }} - 加點前的點數
 - {{ points_after }} - 加點後的點數
+
+支援 Jinja2 語法</field>
+        </record>
+        <!-- 點數查詢模板 -->
+        <record id="template_points_query" model="discord.message.template">
+            <field name="name">點數查詢</field>
+            <field name="template_type">points_query</field>
+            <field name="body">你目前有 {{ points }} 點</field>
+            <field name="description">查詢點數時的私訊回覆
+
+可用變數：
+- {{ points }} - 目前點數
 
 支援 Jinja2 語法</field>
         </record>

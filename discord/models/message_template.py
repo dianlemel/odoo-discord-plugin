@@ -2,6 +2,7 @@ import logging
 from jinja2 import Template
 
 from odoo import fields, models, api
+from odoo.exceptions import ValidationError
 
 _logger = logging.getLogger(__name__)
 
@@ -26,14 +27,31 @@ class DiscordMessageTemplate(models.Model):
     def _get_template_types(self):
         """模板類型，新增模板類型時在這裡擴充"""
         return [
+            ('bind_already_bound', '已綁定通知'),
+            ('bind_success', '綁定成功通知'),
+            ('buy_confirm', '購買確認'),
             ('gift_announcement', '贈送公告'),
+            ('gift_success', '贈送成功通知'),
             ('payment_notification', '付款成功通知'),
+            ('points_query', '點數查詢'),
         ]
 
     _sql_constraints = [
         ('type_unique', 'UNIQUE(template_type)',
          '每種類型只能有一個模板！'),
     ]
+
+    @api.constrains('template_type')
+    def _check_unique_template_type(self):
+        for record in self:
+            duplicate = self.sudo().search([
+                ('template_type', '=', record.template_type),
+                ('id', '!=', record.id),
+            ], limit=1)
+            if duplicate:
+                raise ValidationError(
+                    f"類型「{record.template_type}」已有模板「{duplicate.name}」，每種類型只能有一個模板！"
+                )
 
     def render(self, values: dict) -> str:
         """

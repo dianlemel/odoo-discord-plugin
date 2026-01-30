@@ -42,6 +42,10 @@ class PointsCog(BaseCog):
                 partner = self.get_partner_by_discord_id(env, discord_user_id)
 
                 if partner:
-                    await message.author.send(f"你目前有 {partner.points} 點")
+                    points_msg = env['discord.message.template'].render_by_type(
+                        'points_query', {'points': partner.points}
+                    )
+                    if points_msg:
+                        await message.author.send(points_msg)
         except Exception as e:
             _logger.error(f"查詢點數失敗: {e}")

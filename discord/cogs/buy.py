@@ -68,9 +68,18 @@ class BuyCog(BaseCog):
             if not payment_url:
                 return
 
+            # 使用模板渲染訊息
+            with self.odoo_env() as env:
+                buy_msg = env['discord.message.template'].render_by_type(
+                    'buy_confirm', {'points': amount}
+                )
+
+            if not buy_msg:
+                return
+
             # 私訊給使用者（使用按鈕）
             dm_message = await message.author.send(
-                f"你要購買 **{amount}** 點\n請點擊下方按鈕完成付款：",
+                buy_msg,
                 view=PaymentView(payment_url, amount)
             )
 

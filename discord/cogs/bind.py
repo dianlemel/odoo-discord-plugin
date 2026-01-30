@@ -63,9 +63,11 @@ class BindCog(BaseCog):
                 partner = self.get_partner_by_discord_id(env, discord_user_id)
 
                 if partner:
-                    await message.author.send(
-                        f"你已經綁定過了！目前有 {partner.points} 點"
+                    bound_msg = env['discord.message.template'].render_by_type(
+                        'bind_already_bound', {'points': partner.points}
                     )
+                    if bound_msg:
+                        await message.author.send(bound_msg)
                 else:
                     vals = {
                         'name': discord_username,
@@ -76,6 +78,10 @@ class BindCog(BaseCog):
                         vals['image_1920'] = avatar_base64
 
                     env['res.partner'].sudo().create(vals)
-                    await message.author.send("綁定成功！")
+                    success_msg = env['discord.message.template'].render_by_type(
+                        'bind_success', {}
+                    )
+                    if success_msg:
+                        await message.author.send(success_msg)
         except Exception as e:
             _logger.error(f"綁定帳號失敗: {e}")

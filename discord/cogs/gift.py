@@ -80,10 +80,16 @@ class GiftCog(BaseCog):
                     # 取得贈送者最新點數
                     sender = self.get_partner_by_discord_id(env, sender_discord_id)
 
-                    await message.author.send(
-                        f"成功贈送 {points} 點給 <@{receiver_discord_id}>！\n"
-                        f"你目前剩餘 {sender.points} 點"
+                    success_msg = env['discord.message.template'].render_by_type(
+                        'gift_success',
+                        {
+                            'points': points,
+                            'receiver': f"<@{receiver_discord_id}>",
+                            'remaining_points': sender.points,
+                        }
                     )
+                    if success_msg:
+                        await message.author.send(success_msg)
 
                     # 發送公告
                     await self._send_announcement(
