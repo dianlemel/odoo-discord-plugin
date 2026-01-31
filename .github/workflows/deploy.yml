@@ -15,7 +15,9 @@ jobs:
           username: ${{ secrets.GCP_USER }}
           key: ${{ secrets.GCP_SSH_KEY }}
           script: |
-            cd /home/dian
-            git pull origin main
-            docker compose exec -T odoo odoo -u discord -d odoo --stop-after-init
-            docker compose restart odoo
+            cd /home/dianlemel/odoo-discord-plugin
+            git log -n 2
+            git fetch origin
+            git reset --hard origin/main
+            docker cp . odoo:/mnt/extra-addons/
+            docker restart odoo
